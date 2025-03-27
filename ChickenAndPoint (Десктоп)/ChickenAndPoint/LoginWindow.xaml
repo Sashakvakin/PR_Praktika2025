@@ -1,0 +1,40 @@
+﻿<Window x:Class="ChickenAndPoint.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChickenAndPoint"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Вход - Курочка и точка" Height="470" Width="350"
+    WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" ResizeMode="NoResize" Icon="/logo3.png">
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <StackPanel Margin="40">
+
+            <Image Source="/logo2.png"
+                Height="110"
+                Stretch="Uniform"
+                HorizontalAlignment="Center"
+                   Margin="0,0,0,15"/>
+
+            <TextBlock Text="Вход в систему" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <TextBox x:Name="EmailTextBox"
+                     materialDesign:HintAssist.Hint="Email"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Margin="0,10"/>
+
+                <PasswordBox x:Name="PasswordTextBox"
+                         materialDesign:HintAssist.Hint="Пароль"
+                         Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"
+                         Margin="0,10"/>
+
+                <Button x:Name="LoginButton"
+                    Content="Войти"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Margin="0,20"
+                    Click="LoginButton_Click"/>
+
+        </StackPanel>
+    </Grid>
+</Window>

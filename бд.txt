@@ -1,0 +1,78 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE "Роли" (
+    id_роли UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    название_роли VARCHAR(50) UNIQUE NOT NULL
+);
+
+INSERT INTO "Роли" (название_роли) VALUES ('Клиент'), ('Персонал'), ('Администратор');
+
+CREATE TABLE "Пользователи" (
+    id_пользователя UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id_роли UUID NOT NULL REFERENCES "Роли"(id_роли),
+    полное_имя VARCHAR(255),
+    номер_телефона VARCHAR(20)
+);
+
+CREATE TABLE "Категории" (
+    id_категории UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    название_категории VARCHAR(100) UNIQUE NOT NULL,
+    описание TEXT
+);
+
+CREATE TABLE "Блюда" (
+    id_блюда UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_категории UUID NOT NULL REFERENCES "Категории"(id_категории) ON DELETE RESTRICT,
+    название_блюда VARCHAR(150) NOT NULL,
+    описание TEXT,
+    цена NUMERIC(10, 2) NOT NULL CHECK (цена >= 0),
+    ссылка_на_изображение VARCHAR(2048),
+    доступно BOOLEAN DEFAULT TRUE NOT NULL
+);
+
+CREATE TABLE "СтатусыЗаказов" (
+    id_статуса UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    название_статуса VARCHAR(50) UNIQUE NOT NULL
+);
+
+INSERT INTO "СтатусыЗаказов" (название_статуса) VALUES
+('Новый'), ('Принят'), ('Готовится'), ('Готов к выдаче'), ('В пути'), ('Доставлен'), ('Отменен');
+
+CREATE TABLE "ТипыЗаказов" (
+    id_типа UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    название_типа VARCHAR(50) UNIQUE NOT NULL
+);
+
+INSERT INTO "ТипыЗаказов" (название_типа) VALUES ('Самовывоз'), ('Доставка');
+
+CREATE TABLE "Заказы" (
+    id_заказа UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_клиента UUID NOT NULL REFERENCES "Пользователи"(id_пользователя) ON DELETE RESTRICT,
+    id_статуса UUID NOT NULL REFERENCES "СтатусыЗаказов"(id_статуса),
+    id_типа UUID NOT NULL REFERENCES "ТипыЗаказов"(id_типа),
+    адрес_доставки TEXT,
+    время_создания TIMESTAMPTZ DEFAULT now() NOT NULL,
+    время_обновления TIMESTAMPTZ DEFAULT now() NOT NULL,
+    итоговая_сумма NUMERIC(10, 2) CHECK (итоговая_сумма >= 0)
+);
+
+CREATE TABLE "СоставЗаказа" (
+    id_состава_заказа UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id_заказа UUID NOT NULL REFERENCES "Заказы"(id_заказа) ON DELETE CASCADE,
+    id_блюда UUID NOT NULL REFERENCES "Блюда"(id_блюда) ON DELETE RESTRICT,
+    количество INTEGER NOT NULL CHECK (количество > 0),
+    цена_на_момент_заказа NUMERIC(10, 2) NOT NULL CHECK (цена_на_момент_заказа >= 0)
+);
+
+CREATE OR REPLACE FUNCTION установить_время_обновления()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.время_обновления = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER обновление_заказа_установить_время
+BEFORE UPDATE ON "Заказы"
+FOR EACH ROW
+EXECUTE FUNCTION установить_время_обновления();
