@@ -50,24 +50,51 @@
 
             <Grid x:Name="OrdersPanel" Visibility="Collapsed" Margin="10">
                 <StackPanel>
-                    <TextBlock Text="Текущие заказы (Тест)" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10"/>
-                    <TextBlock x:Name="OrdersStatusText" Text="Загрузка заказов..." HorizontalAlignment="Center" Margin="20" Visibility="Collapsed"/>
+                    <TextBlock Text="Текущие заказы" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10"/>
+                    <Grid Margin="10,0,10,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="SearchTextBox" Grid.Column="0"
+                                 materialDesign:HintAssist.Hint="Поиск по заказам..."
+                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                 TextChanged="SearchTextBox_TextChanged"/>
+                        <Button x:Name="ResetSearchButton" Grid.Column="1"
+                                Content="{materialDesign:PackIcon Kind=CloseCircleOutline}"
+                                ToolTip="Сбросить поиск"
+                                Style="{StaticResource MaterialDesignToolButton}"
+                                Margin="5,0,0,0"
+                                VerticalAlignment="Bottom"
+                                Click="ResetSearchButton_Click"/>
+                    </Grid>
+                    <TextBlock x:Name="OrdersStatusText" Text="Загрузка данных..." HorizontalAlignment="Center" Margin="20" Visibility="Collapsed"/>
                     <DataGrid x:Name="OrdersDataGrid"
                               AutoGenerateColumns="False"
                               CanUserAddRows="False"
                               IsReadOnly="True"
-                              ItemsSource="{Binding OrdersList}"
                               Margin="10"
                               materialDesign:DataGridAssist.CellPadding="13 8 8 8"
                               materialDesign:DataGridAssist.ColumnHeaderPadding="8">
                         <DataGrid.Columns>
-                            <materialDesign:DataGridTextColumn Header="ID Клиента" Binding="{Binding IdКлиента}" Width="Auto"/>
-                            <materialDesign:DataGridTextColumn Header="ID Статуса" Binding="{Binding IdСтатуса}" Width="Auto"/>
-                            <materialDesign:DataGridTextColumn Header="ID Типа" Binding="{Binding IdТипа}" Width="Auto"/>
-                            <materialDesign:DataGridTextColumn Header="Адрес доставки" Binding="{Binding АдресДоставки}" Width="*"/>
-                            <materialDesign:DataGridTextColumn Header="Сумма" Binding="{Binding ИтоговаяСумма, StringFormat=C}" Width="Auto"/>
-                            <materialDesign:DataGridTextColumn Header="Время создания" Binding="{Binding ВремяСоздания, StringFormat='dd.MM.yyyy HH:mm:ss'}" Width="Auto"/>
-                            <materialDesign:DataGridTextColumn Header="Время обновления" Binding="{Binding ВремяОбновления, StringFormat='dd.MM.yyyy HH:mm:ss'}" Width="Auto"/>
+                            <materialDesign:DataGridTextColumn Header="Клиент" Binding="{Binding ИмяКлиента}" Width="*" MinWidth="150"/>
+                            <materialDesign:DataGridTextColumn Header="Статус" Binding="{Binding НазваниеСтатуса}" Width="Auto" MinWidth="100"/>
+                            <materialDesign:DataGridTextColumn Header="Тип" Binding="{Binding НазваниеТипа}" Width="Auto" MinWidth="100"/>
+                            <materialDesign:DataGridTextColumn Header="Адрес доставки" Binding="{Binding АдресДоставки}" Width="*" MinWidth="200"/>
+                            <materialDesign:DataGridTextColumn Header="Сумма" Binding="{Binding ИтоговаяСумма, StringFormat=C}" Width="Auto" MinWidth="80"/>
+                            <materialDesign:DataGridTextColumn Header="Время создания" Binding="{Binding ВремяСоздания, StringFormat='dd.MM.yyyy HH:mm:ss'}" Width="Auto" MinWidth="140"/>
+                            <materialDesign:DataGridTextColumn Header="Время обновления" Binding="{Binding ВремяОбновления, StringFormat='dd.MM.yyyy HH:mm:ss'}" Width="Auto" MinWidth="140"/>
+                            <!-- Новая колонка с кнопкой -->
+                            <DataGridTemplateColumn Header="Действия" Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Подробнее"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Click="DetailsButton_Click"
+                        Tag="{Binding Id}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>

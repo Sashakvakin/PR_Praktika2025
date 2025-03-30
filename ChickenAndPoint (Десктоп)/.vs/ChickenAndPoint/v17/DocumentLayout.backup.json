@@ -1,65 +1,81 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\",
+  "WorkspaceRootPath": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\sotrydnikmainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\sotrydnikmainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\sotrydnikmainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\desktop\\\u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0430 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u043E\u0444\u0442\\chickenandpoint (\u0434\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\sotrydnikmainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\sotrydnikmainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\desktop\\\u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0430 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u043E\u0444\u0442\\chickenandpoint (\u0434\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\orderdetailswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\orderdetailswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\models\\\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\desktop\\\u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0430 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u043E\u0444\u0442\\chickenandpoint (\u0434\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\orderdetailswindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\orderdetailswindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\models\\\u0440\u043E\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0440\u043E\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\sotrydnikmainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\sotrydnikmainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\models\\\u0437\u0430\u043A\u0430\u0437\u044B.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0437\u0430\u043A\u0430\u0437\u044B.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\desktop\\\u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0430 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u043E\u0444\u0442\\chickenandpoint (\u0434\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u0431\u043B\u044E\u0434\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0431\u043B\u044E\u0434\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\models\\\u0442\u0438\u043F\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0442\u0438\u043F\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\desktop\\\u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0430 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u043E\u0444\u0442\\chickenandpoint (\u0434\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u0441\u043E\u0441\u0442\u0430\u0432\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0441\u043E\u0441\u0442\u0430\u0432\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\models\\\u0441\u0442\u0430\u0442\u0443\u0441\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0441\u0442\u0430\u0442\u0443\u0441\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\source\\repos\\chickenandpoint\\chickenandpoint\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u0437\u0430\u043A\u0430\u0437\u044B.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0437\u0430\u043A\u0430\u0437\u044B.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|c:\\users\\iidom\\desktop\\\u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0430 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u043E\u0444\u0442\\chickenandpoint (\u0434\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\loginwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\loginwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u0440\u043E\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0440\u043E\u043B\u044C.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u0442\u0438\u043F\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0442\u0438\u043F\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\models\\\u0441\u0442\u0430\u0442\u0443\u0441\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\models\\\u0441\u0442\u0430\u0442\u0443\u0441\u0437\u0430\u043A\u0430\u0437\u0430.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\chickenandpoint\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{E1D814F8-D052-4E66-AE98-5262B42D31F2}|ChickenAndPoint\\ChickenAndPoint.csproj|solutionrelative:chickenandpoint\\packages.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     }
   ],
@@ -70,15 +86,15 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 6,
               "Title": "App.config",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\App.config",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\App.config",
               "RelativeDocumentMoniker": "ChickenAndPoint\\App.config",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\App.config",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\App.config",
               "RelativeToolTip": "ChickenAndPoint\\App.config",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
@@ -88,11 +104,74 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "OrderDetailsWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\OrderDetailsWindow.xaml.cs",
+              "RelativeDocumentMoniker": "ChickenAndPoint\\OrderDetailsWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\OrderDetailsWindow.xaml.cs",
+              "RelativeToolTip": "ChickenAndPoint\\OrderDetailsWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T22:08:09.598Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "OrderDetailsWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\OrderDetailsWindow.xaml",
+              "RelativeDocumentMoniker": "ChickenAndPoint\\OrderDetailsWindow.xaml",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\OrderDetailsWindow.xaml",
+              "RelativeToolTip": "ChickenAndPoint\\OrderDetailsWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-03-30T22:07:57.257Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "\u0411\u043B\u044E\u0434\u0430.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0411\u043B\u044E\u0434\u0430.cs",
+              "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u0411\u043B\u044E\u0434\u0430.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0411\u043B\u044E\u0434\u0430.cs",
+              "RelativeToolTip": "ChickenAndPoint\\Models\\\u0411\u043B\u044E\u0434\u0430.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T22:07:39.845Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "\u0421\u043E\u0441\u0442\u0430\u0432\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0421\u043E\u0441\u0442\u0430\u0432\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u0421\u043E\u0441\u0442\u0430\u0432\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0421\u043E\u0441\u0442\u0430\u0432\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "RelativeToolTip": "ChickenAndPoint\\Models\\\u0421\u043E\u0441\u0442\u0430\u0432\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T22:07:24.368Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SotrydnikMainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\SotrydnikMainWindow.xaml",
+              "RelativeDocumentMoniker": "ChickenAndPoint\\SotrydnikMainWindow.xaml",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\SotrydnikMainWindow.xaml",
+              "RelativeToolTip": "ChickenAndPoint\\SotrydnikMainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-03-30T22:01:36.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 7,
               "Title": "\u0417\u0430\u043A\u0430\u0437\u044B.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0417\u0430\u043A\u0430\u0437\u044B.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0417\u0430\u043A\u0430\u0437\u044B.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u0417\u0430\u043A\u0430\u0437\u044B.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0417\u0430\u043A\u0430\u0437\u044B.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0417\u0430\u043A\u0430\u0437\u044B.cs",
               "RelativeToolTip": "ChickenAndPoint\\Models\\\u0417\u0430\u043A\u0430\u0437\u044B.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -101,62 +180,48 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 14,
               "Title": "\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
               "RelativeToolTip": "ChickenAndPoint\\Models\\\u0422\u0438\u043F\u0417\u0430\u043A\u0430\u0437\u0430.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T00:49:15.627Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-27T00:49:15.627Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 15,
               "Title": "\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
               "RelativeToolTip": "ChickenAndPoint\\Models\\\u0421\u0442\u0430\u0442\u0443\u0441\u0417\u0430\u043A\u0430\u0437\u0430.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T00:49:03.786Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-27T00:49:03.786Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "SotrydnikMainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\SotrydnikMainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\SotrydnikMainWindow.xaml.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\SotrydnikMainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\SotrydnikMainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\SotrydnikMainWindow.xaml.cs",
               "RelativeToolTip": "ChickenAndPoint\\SotrydnikMainWindow.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAAMAAAAAAAAAAAAAswN0AAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-27T00:18:12.712Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "SotrydnikMainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\SotrydnikMainWindow.xaml",
-              "RelativeDocumentMoniker": "ChickenAndPoint\\SotrydnikMainWindow.xaml",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\SotrydnikMainWindow.xaml",
-              "RelativeToolTip": "ChickenAndPoint\\SotrydnikMainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-03-27T00:15:06.851Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 8,
               "Title": "LoginWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\LoginWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\LoginWindow.xaml.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\LoginWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\LoginWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\LoginWindow.xaml.cs",
               "RelativeToolTip": "ChickenAndPoint\\LoginWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAKYAAACgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -165,37 +230,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 13,
               "Title": "\u0420\u043E\u043B\u044C.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0420\u043E\u043B\u044C.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0420\u043E\u043B\u044C.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u0420\u043E\u043B\u044C.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u0420\u043E\u043B\u044C.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u0420\u043E\u043B\u044C.cs",
               "RelativeToolTip": "ChickenAndPoint\\Models\\\u0420\u043E\u043B\u044C.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-26T23:33:35.4Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-26T23:33:35.4Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 12,
               "Title": "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\Models\\\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\Models\\\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\Models\\\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
               "RelativeToolTip": "ChickenAndPoint\\Models\\\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-26T23:33:23.586Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-26T23:33:23.586Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 10,
               "Title": "LoginWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\LoginWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\LoginWindow.xaml",
               "RelativeDocumentMoniker": "ChickenAndPoint\\LoginWindow.xaml",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\LoginWindow.xaml",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\LoginWindow.xaml",
               "RelativeToolTip": "ChickenAndPoint\\LoginWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-03-26T23:32:39.929Z",
@@ -203,37 +266,35 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "packages.config",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\packages.config",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\packages.config",
               "RelativeDocumentMoniker": "ChickenAndPoint\\packages.config",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\packages.config",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\packages.config",
               "RelativeToolTip": "ChickenAndPoint\\packages.config",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2025-03-26T23:25:01.344Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-26T23:25:01.344Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 17,
               "Title": "App.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\App.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\App.xaml.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\App.xaml.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\App.xaml.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\App.xaml.cs",
               "RelativeToolTip": "ChickenAndPoint\\App.xaml.cs",
               "ViewState": "AgIAAAoAAAAAAAAAAAAgwBoAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-26T23:24:44.881Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-26T23:24:44.881Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 16,
               "Title": "App.xaml",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\App.xaml",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\App.xaml",
               "RelativeDocumentMoniker": "ChickenAndPoint\\App.xaml",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\App.xaml",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\App.xaml",
               "RelativeToolTip": "ChickenAndPoint\\App.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-03-26T23:24:03.863Z",
@@ -241,11 +302,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 11,
               "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\MainWindow.xaml",
               "RelativeDocumentMoniker": "ChickenAndPoint\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\MainWindow.xaml",
               "RelativeToolTip": "ChickenAndPoint\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-03-26T23:18:27.077Z",
@@ -253,11 +314,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 9,
               "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "ChickenAndPoint\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\IIDom\\source\\repos\\ChickenAndPoint\\ChickenAndPoint\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\\u041F\u0420\u0410\u041A\u0422\u0418\u041A\u0410 \u041C\u0410\u0421\u0422\u0415\u0420\u0421\u041E\u0424\u0422\\ChickenAndPoint (\u0414\u0435\u0441\u043A\u0442\u043E\u043F)\\ChickenAndPoint\\MainWindow.xaml.cs",
               "RelativeToolTip": "ChickenAndPoint\\MainWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",

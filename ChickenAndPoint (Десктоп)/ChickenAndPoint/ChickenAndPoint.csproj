@@ -148,9 +148,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Блюда.cs" />
     <Compile Include="Models\Заказы.cs" />
+    <Compile Include="Models\СоставЗаказа.cs" />
     <Compile Include="Models\СтатусЗаказа.cs" />
     <Compile Include="Models\ТипЗаказа.cs" />
+    <Compile Include="OrderDetailsWindow.xaml.cs">
+      <DependentUpon>OrderDetailsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SotrydnikMainWindow.xaml.cs">
       <DependentUpon>SotrydnikMainWindow.xaml</DependentUpon>
     </Compile>
@@ -173,6 +178,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="OrderDetailsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SotrydnikMainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
