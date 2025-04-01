@@ -1,4 +1,5 @@
-﻿using Postgrest.Models;
+﻿// Models/Заказы.cs
+using Postgrest.Models;
 using Postgrest.Attributes;
 using System;
 
@@ -19,6 +20,10 @@ namespace ChickenAndPoint.Models
         [Column("id_типа")]
         public Guid IdТипа { get; set; }
 
+        // --- НОВОЕ ПОЛЕ ---
+        [Column("номер_заказа")]
+        public string НомерЗаказа { get; set; }
+
         [Column("адрес_доставки")]
         public string АдресДоставки { get; set; }
 
@@ -30,6 +35,5 @@ namespace ChickenAndPoint.Models
 
         [Column("итоговая_сумма")]
         public decimal? ИтоговаяСумма { get; set; }
-
     }
 }
