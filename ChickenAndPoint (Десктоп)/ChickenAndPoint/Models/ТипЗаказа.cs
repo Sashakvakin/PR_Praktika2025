@@ -8,7 +8,7 @@ namespace ChickenAndPoint.Models
     [Table("ТипыЗаказов")]
     public class ТипЗаказа : BaseModel
     {
-        [PrimaryKey("id")] // Используем "id"
+        [PrimaryKey("id")]
         public Guid Id { get; set; }
 
         [Column("название_типа")]

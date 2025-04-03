@@ -20,7 +20,6 @@ namespace ChickenAndPoint.Models
         [Column("id_типа")]
         public Guid IdТипа { get; set; }
 
-        // --- НОВОЕ ПОЛЕ ---
         [Column("номер_заказа")]
         public string НомерЗаказа { get; set; }
 

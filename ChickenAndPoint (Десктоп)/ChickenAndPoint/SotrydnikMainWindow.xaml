@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChickenAndPoint"
+        xmlns:viewModels="clr-namespace:ChickenAndPoint"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Курочка и точка - Сотрудник" Height="650" Width="1000"
+        Title="Курочка и точка - Сотрудник" Height="650" Width="1050"
         WindowStartupLocation="CenterScreen"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
@@ -15,30 +16,21 @@
         FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
 
     <Window.Resources>
-        <!-- Цвета фона для статусов -->
+        <local:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
         <SolidColorBrush x:Key="CompletedOrderBackgroundBrush" Color="#E8F5E9"/>
         <SolidColorBrush x:Key="CancelledOrderBackgroundBrush" Color="#FFEBEE"/>
         <SolidColorBrush x:Key="ActiveOrderBackgroundBrush" Color="#FFF8E1"/>
 
-        <!-- Стиль для подсветки строк заказов -->
         <Style x:Key="HighlightCompletedRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
             <Style.Triggers>
-                <!-- 1. Выполненные -> Зеленый -->
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="Выполнен">
                     <Setter Property="Background" Value="{StaticResource CompletedOrderBackgroundBrush}"/>
                     <Setter Property="ToolTip" Value="Заказ выполнен"/>
                 </DataTrigger>
-
-                <!-- 2. Отмененные -> Красный -->
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="Отменен">
                     <Setter Property="Background" Value="{StaticResource CancelledOrderBackgroundBrush}"/>
-                    <!-- <Setter Property="Opacity" Value="0.8"/> Убрали прозрачность, т.к. цвет достаточен -->
                     <Setter Property="ToolTip" Value="Заказ отменен"/>
                 </DataTrigger>
-
-                <!-- 3. Активные/Промежуточные -> Оранжевый -->
-                <!--    !!! ЗАМЕНИТЕ "Новый", "Готовится", "Доставляется" -->
-                <!--    !!! НА ТОЧНЫЕ НАЗВАНИЯ ВАШИХ СТАТУСОВ, КОТОРЫЕ НУЖНО ВЫДЕЛИТЬ ОРАНЖЕВЫМ -->
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="В пути">
                     <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
                     <Setter Property="ToolTip" Value="Новый заказ"/>
@@ -55,15 +47,9 @@
                     <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
                     <Setter Property="ToolTip" Value="Заказ доставляется"/>
                 </DataTrigger>
-
-                <!-- Добавьте сюда DataTrigger для КАЖДОГО другого статуса, который должен быть оранжевым -->
-
-                <!-- Статусы, не перечисленные выше, будут иметь стандартный фон (белый/серый) -->
-
             </Style.Triggers>
         </Style>
 
-        <!-- Стиль для иконки типа заказа (без изменений) -->
         <Style x:Key="OrderTypeIconStyle" TargetType="materialDesign:PackIcon">
             <Setter Property="Kind" Value="HelpCircleOutline"/>
             <Setter Property="ToolTip" Value="{Binding НазваниеТипа}"/>
@@ -90,25 +76,20 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Левое меню -->
         <StackPanel Grid.Column="0" Background="{DynamicResource PrimaryHueMidBrush}" Width="190">
-            <!-- Кнопка Профиль -->
             <Button x:Name="ProfileButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="Профиль">
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Text="Профиль" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <!-- НОВАЯ КНОПКА -->
             <Button x:Name="CurrentOrdersButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="ТекущиеЗаказы">
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="ClockFast" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Text="Текущие заказы" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <!-- Кнопка История заказов -->
             <Button x:Name="OrdersHistoryButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="ИсторияЗаказов">
-                <!-- Tag изменен для ясности -->
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="History" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Text="История заказов" VerticalAlignment="Center"/>
@@ -116,31 +97,82 @@
             </Button>
         </StackPanel>
 
-        <!-- Основная область -->
         <Grid Grid.Column="1">
-            <!-- Панель Профиля -->
             <StackPanel x:Name="ProfilePanel" Visibility="Collapsed" Margin="20">
                 <materialDesign:Card Padding="20" Margin="10" UniformCornerRadius="10">
                     <StackPanel>
-                        <TextBlock Text="Профиль Сотрудника" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,15"/>
-                        <TextBlock Text="Полное имя:" FontWeight="Bold"/>
-                        <TextBlock x:Name="FullNameTextBlock" Text="-" Margin="0,0,0,10"/>
-                        <TextBlock Text="Номер телефона:" FontWeight="Bold"/>
-                        <TextBlock x:Name="PhoneTextBlock" Text="-" Margin="0,0,0,10"/>
+                        <TextBlock Text="Профиль Сотрудника" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,15" FontSize="22"/>
+                        <TextBlock Text="Полное имя:" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock x:Name="FullNameTextBlock" Text="-" Margin="0,0,0,10" FontSize="16"/>
+                        <TextBlock Text="Номер телефона:" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock x:Name="PhoneTextBlock" Text="-" Margin="0,0,0,10" FontSize="16"/>
                     </StackPanel>
                 </materialDesign:Card>
                 <Button x:Name="LogoutButton" Content="Выход" Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Left" Margin="10,20,10,10" Width="150" Background="{DynamicResource MaterialDesignTextFieldBoxBackground}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="1" Click="LogoutButton_Click"/>
             </StackPanel>
 
-            <!-- НОВАЯ ПАНЕЛЬ -->
             <Grid x:Name="CurrentOrdersPanel" Visibility="Collapsed" Margin="10">
-                <TextBlock Text="Текущие заказы" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10"/>
-                <!-- Сюда будет добавляться контент для текущих заказов -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Текущие заказы" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10" Grid.Row="0"/>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="CurrentOrdersItemsControl" ItemsSource="{Binding CurrentOrders}" Margin="10" FontSize="16">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type local:CurrentOrderViewModel}">
+                                <materialDesign:Card Width="Auto" Height="Auto" Margin="5" Padding="10" UniformCornerRadius="5">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding НомерЗаказа, StringFormat=Заказ: {0}}" FontWeight="Bold" Margin="0,0,5,5"/>
+
+                                        <ItemsControl ItemsSource="{Binding Items}" Margin="0,5,0,5">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type local:OrderItemDisplayViewModel}">
+                                                    <Image Width="65" Height="65" Margin="2"
+                                                        Source="{Binding СсылкаНаИзображение, Converter={StaticResource ImageUrlConverter}}"
+                                   Stretch="UniformToFill">
+                                                        <Image.ToolTip>
+                                                            <TextBlock Text="{Binding НазваниеБлюда}"/>
+                                                        </Image.ToolTip>
+                                                    </Image>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="Состав:" FontWeight="Medium" Margin="0,5,0,2"/>
+                                        <Separator Height="3"
+                                           Background="{DynamicResource MaterialDesignDivider}"
+                                           Margin="0,3,0,5"/>
+                                        <ItemsControl ItemsSource="{Binding Items}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type local:OrderItemDisplayViewModel}">
+                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                                        <TextBlock Text="{Binding НазваниеБлюда}"/>
+                                                        <TextBlock Text="{Binding Количество, StringFormat=' ({0})'}" Margin="5,0,0,0"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </Grid>
 
-            <!-- Панель Истории заказов -->
             <Grid x:Name="OrdersHistoryPanel" Visibility="Collapsed" Margin="10">
-                <!-- Имя панели изменено для ясности -->
                 <StackPanel>
                     <TextBlock Text="История заказов" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10"/>
                     <Border Padding="10" Margin="10,0,10,10" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1">
@@ -218,11 +250,11 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <materialDesign:DataGridTextColumn Header="Номер заказа" Binding="{Binding НомерЗаказа}" Width="Auto" MinWidth="100"/>
-                            <materialDesign:DataGridTextColumn Header="Клиент" Binding="{Binding ИмяКлиента}" Width="*" MinWidth="130"/>
-                            <materialDesign:DataGridTextColumn Header="Статус" Binding="{Binding НазваниеСтатуса}" Width="Auto" MinWidth="100"/>
-                            <materialDesign:DataGridTextColumn Header="Адрес доставки" Binding="{Binding АдресДоставки}" Width="*" MinWidth="180"/>
-                            <materialDesign:DataGridTextColumn Header="Сумма" Binding="{Binding ИтоговаяСумма, StringFormat=C}" Width="Auto" MinWidth="80"/>
+                            <materialDesign:DataGridTextColumn Header="Номер" Binding="{Binding НомерЗаказа}" Width="Auto" MinWidth="40"/>
+                            <materialDesign:DataGridTextColumn Header="Клиент" Binding="{Binding ИмяКлиента}" Width="Auto" MinWidth="100" FontSize="11"/>
+                            <materialDesign:DataGridTextColumn Header="Статус" Binding="{Binding НазваниеСтатуса}" Width="Auto" MinWidth="50"/>
+                            <materialDesign:DataGridTextColumn Header="Адрес доставки" Binding="{Binding АдресДоставки}" Width="Auto" MinWidth="90" FontSize="11"/>
+                            <materialDesign:DataGridTextColumn Header="Сумма" Binding="{Binding ИтоговаяСумма, StringFormat='{}{0:N2} ₽'}" Width="Auto" MinWidth="80"/>
                             <materialDesign:DataGridTextColumn Header="Создан" Binding="{Binding ВремяСоздания, StringFormat='dd.MM HH:mm'}" Width="Auto" MinWidth="100"/>
                             <DataGridTemplateColumn Header="Действия" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>

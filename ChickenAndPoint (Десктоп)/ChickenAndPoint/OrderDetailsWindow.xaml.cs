@@ -7,24 +7,17 @@ using ChickenAndPoint.Models;
 
 namespace ChickenAndPoint
 {
-    public class OrderItemDisplayViewModel
-    {
-        public string НазваниеБлюда { get; set; }
-        public int Количество { get; set; }
-        public decimal ЦенаНаМоментЗаказа { get; set; }
-        public decimal СуммаПозиции => Количество * ЦенаНаМоментЗаказа;
-    }
 
     public partial class OrderDetailsWindow : Window
     {
         private Guid _orderId;
         private Dictionary<Guid, Блюда> _allDishesDictionary = new Dictionary<Guid, Блюда>();
-
+        string orderNumber;
         public OrderDetailsWindow(Guid orderId)
         {
             InitializeComponent();
             _orderId = orderId;
-            WindowTitleTextBlock.Text += orderId.ToString("D");
+            WindowTitleTextBlock.Text = "Состав заказа";
             Loaded += OrderDetailsWindow_Loaded;
         }
 
@@ -48,6 +41,16 @@ namespace ChickenAndPoint
                     StatusTextBlock.Text = "Ошибка: Клиент Supabase не инициализирован.";
                     return;
                 }
+                var orderHeaderResponse = await App.SupabaseClient
+                        .From<Заказы>()
+                        .Select("НомерЗаказа")
+                        .Filter("id", Postgrest.Constants.Operator.Equals, _orderId.ToString())
+                        .Single();
+                if (orderHeaderResponse != null && !string.IsNullOrEmpty(orderHeaderResponse.НомерЗаказа))
+                {
+                    orderNumber = orderHeaderResponse.НомерЗаказа;
+                }
+                WindowTitleTextBlock.Text = $"Состав заказа ({orderNumber})";
 
                 var dishesResponse = await App.SupabaseClient
                     .From<Блюда>()
@@ -105,6 +108,18 @@ namespace ChickenAndPoint
                 }
 
                 OrderItemsDataGrid.ItemsSource = viewModels;
+
+                if (viewModels.Any())
+                {
+                    decimal totalSum = viewModels.Sum(vm => vm.СуммаПозиции);
+                    TotalSumTextBlock.Text = $"Итого: {totalSum:N2} ₽";
+                    TotalSumTextBlock.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    TotalSumTextBlock.Visibility = Visibility.Collapsed;
+                }
+
                 StatusTextBlock.Visibility = Visibility.Collapsed;
 
             }

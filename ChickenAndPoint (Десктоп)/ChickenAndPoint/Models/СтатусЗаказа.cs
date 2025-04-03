@@ -8,7 +8,7 @@ namespace ChickenAndPoint.Models
     [Table("СтатусыЗаказов")]
     public class СтатусЗаказа : BaseModel
     {
-        [PrimaryKey("id")] // Используем "id", как договорились
+        [PrimaryKey("id")]
         public Guid Id { get; set; }
 
         [Column("название_статуса")]

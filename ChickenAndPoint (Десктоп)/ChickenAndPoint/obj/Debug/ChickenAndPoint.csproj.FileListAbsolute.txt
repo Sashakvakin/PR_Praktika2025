@@ -145,13 +145,16 @@ C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Д
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.csproj.AssemblyReference.cache
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\LoginWindow.g.cs
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\MainWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\OrderDetailsWindow.g.cs
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\SotrydnikMainWindow.g.cs
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\App.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\GeneratedInternalTypeHelper.g.cs
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint_MarkupCompile.cache
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint_MarkupCompile.lref
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\App.baml
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\LoginWindow.baml
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\MainWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\OrderDetailsWindow.baml
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\SotrydnikMainWindow.baml
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.g.resources
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.Properties.Resources.resources
@@ -160,5 +163,3 @@ C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Д
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenA.56D03873.Up2Date
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.exe
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.pdb
-C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\OrderDetailsWindow.g.cs
-C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\OrderDetailsWindow.baml

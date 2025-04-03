@@ -7,7 +7,6 @@ namespace ChickenAndPoint.Models
     [Table("Пользователи")]
     public class Пользователь : BaseModel
     {
-        // Теперь первичный ключ называется "id"
         [PrimaryKey("id", false)]
         public Guid Id { get; set; }
 

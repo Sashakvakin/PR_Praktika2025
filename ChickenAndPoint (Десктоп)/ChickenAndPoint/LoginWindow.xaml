@@ -6,16 +6,16 @@
         xmlns:local="clr-namespace:ChickenAndPoint"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Вход - Курочка и точка" Height="470" Width="350"
+        Title="Вход - Курочка и точка" Height="500" Width="350"
     WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow" ResizeMode="NoResize" Icon="/logo3.png">
     <Grid Background="{DynamicResource MaterialDesignPaper}">
         <StackPanel Margin="40">
 
             <Image Source="/logo2.png"
-                Height="110"
+                Height="150"
                 Stretch="Uniform"
                 HorizontalAlignment="Center"
-                   Margin="0,0,0,15"/>
+                   Margin="0,0,0,10"/>
 
             <TextBlock Text="Вход в систему" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
@@ -32,7 +32,7 @@
                 <Button x:Name="LoginButton"
                     Content="Войти"
                     Style="{StaticResource MaterialDesignRaisedButton}"
-                    Margin="0,20"
+                    Margin="0,10"
                     Click="LoginButton_Click"/>
 
         </StackPanel>
