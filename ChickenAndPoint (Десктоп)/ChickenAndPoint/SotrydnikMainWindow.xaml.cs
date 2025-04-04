@@ -16,6 +16,79 @@ using static Postgrest.Constants;
 namespace ChickenAndPoint
 {
 
+    public class SubtractValueConverter : IValueConverter
+    {
+        private const double MinimumDateFontSize = 10.0;
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double sliderValue)
+            {
+                double subtractAmount = 0;
+                if (parameter is string paramString && double.TryParse(paramString, NumberStyles.Any, CultureInfo.InvariantCulture, out double amount))
+                {
+                    subtractAmount = amount;
+                }
+                else if (parameter is double paramDouble)
+                {
+                    subtractAmount = paramDouble;
+                }
+
+                double rawResult = sliderValue - subtractAmount;
+                double finalResult = Math.Max(MinimumDateFontSize, rawResult);
+                return finalResult;
+            }
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("ConvertBack is not implemented for SubtractValueConverter.");
+        }
+
+    }
+    public class MinimumValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double minimumValue = 0; // Минимальное значение по умолчанию
+
+            // Пытаемся получить минимальное значение из параметра конвертера
+            if (parameter != null)
+            {
+                if (parameter is string paramString && double.TryParse(paramString, NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedMin))
+                {
+                    minimumValue = parsedMin;
+                }
+                else if (parameter is double paramDouble)
+                {
+                    minimumValue = paramDouble;
+                }
+                // Добавим поддержку int на всякий случай
+                else if (parameter is int paramInt)
+                {
+                    minimumValue = paramInt;
+                }
+            }
+
+            // Пытаемся получить текущее значение от слайдера
+            if (value is double currentValue)
+            {
+                // Возвращаем наибольшее из текущего значения и минимума
+                return Math.Max(currentValue, minimumValue);
+            }
+
+            // Если значение не double, возвращаем просто минимум (запасной вариант)
+            return minimumValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Для привязки размера обычно не нужен
+            throw new NotImplementedException();
+        }
+    }
+
     public class OrderDisplayViewModel
     {
         public Guid Id { get; set; }
@@ -38,6 +111,9 @@ namespace ChickenAndPoint
         public decimal ЦенаНаМоментЗаказа { get; set; }
         public string СсылкаНаИзображение { get; set; }
         public decimal СуммаПозиции => Количество * ЦенаНаМоментЗаказа;
+
+        public Guid IdКатегории { get; set; } // НОВОЕ
+        public string СсылкаНаИконкуКатегории { get; set; } //НОВОЕ
     }
 
     public class CurrentOrderViewModel
@@ -45,6 +121,10 @@ namespace ChickenAndPoint
         public Guid Id { get; set; }
         public string НомерЗаказа { get; set; }
         public List<OrderItemDisplayViewModel> Items { get; set; }
+        public DateTimeOffset ВремяСоздания { get; set; }
+        public Guid IdТипа { get; set; }
+
+        public Guid IdСтатуса { get; set; }
     }
 
     public class ImageUrlToBitmapConverter : IValueConverter
@@ -75,7 +155,41 @@ namespace ChickenAndPoint
             throw new NotImplementedException();
         }
     }
+    public class StatusToButtonTextConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Guid statusId)
+            {
+                if (statusId == SotrydnikMainWindow.ReadyForPickupStatusUUID)
+                {
+                    return "Заказ получен";
+                }
+                else if (statusId == SotrydnikMainWindow.AwaitingCourierStatusUUID)
+                {
+                    return "Передан курьеру";
+                }
+                else if (statusId == SotrydnikMainWindow.AcceptedStatusUUID)
+                {
+                    return "Готово";
+                }
+                else if (statusId == SotrydnikMainWindow.PreparingStatusUUID)
+                {
+                    return "Готово";
+                }
+                else
+                {
+                    return "Неизвестный статус";
+                }
+            }
+            return "Неизвестный статус";
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public partial class SotrydnikMainWindow : Window
     {
         private Пользователь _loggedInUser;
@@ -86,6 +200,13 @@ namespace ChickenAndPoint
         private Dictionary<Guid, string> _typeNamesDictionary = new Dictionary<Guid, string>();
         private List<OrderDisplayViewModel> _allLoadedOrders = new List<OrderDisplayViewModel>();
         private const string AllItemsFilterKey = "[Все]";
+
+        public static readonly Guid DeliveryTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["DeliveryTypeUUID"] ?? Guid.Empty.ToString());
+
+        public static readonly Guid ReadyForPickupStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid AwaitingCourierStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid PreparingStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["PreparingStatusUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid AcceptedStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["AcceptedStatusUUID"] ?? Guid.Empty.ToString());
 
         public ObservableCollection<CurrentOrderViewModel> CurrentOrders
         {
@@ -99,6 +220,7 @@ namespace ChickenAndPoint
             _loggedInUser = user;
             DataContext = this;
             ShowProfile();
+
         }
 
         private void ShowProfile()
@@ -122,9 +244,194 @@ namespace ChickenAndPoint
             await LoadOrdersHistoryWithDetailsAsync();
         }
 
+        private async void OrderActionButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Guid orderId)
+            {
+                try
+                {
+                    // Получаем текущий заказ из коллекции _currentOrders
+                    CurrentOrderViewModel orderToComplete = CurrentOrders.FirstOrDefault(x => x.Id == orderId);
+                    if (orderToComplete == null)
+                    {
+                        MessageBox.Show("Заказ не найден в списке текущих заказов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // --- Заранее получим все нужные GUID'ы из конфигурации ---
+                    // Для статусов, НА КОТОРЫЕ будем менять
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["CompletedStatusUUID"], out Guid completedGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для CompletedStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["InTransitStatusUUID"], out Guid inTransitGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для InTransitStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    // --- Ключевые GUID'ы для логики "Готово" ---
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"], out Guid readyForPickupGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для ReadyForPickupStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"], out Guid awaitingCourierGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для AwaitingCourierStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    // --- GUID типа "Доставка" ---
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["DeliveryTypeUUID"], out Guid deliveryGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для DeliveryTypeUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    // Используем уже имеющиеся статические поля для Accepted и Preparing
+                    // Guid acceptedGuid = AcceptedStatusUUID;
+                    // Guid preparingGuid = PreparingStatusUUID;
+                    // Guid readyForPickupCurrentGuid = ReadyForPickupStatusUUID; // Для сравнения текущего статуса
+                    // Guid awaitingCourierCurrentGuid = AwaitingCourierStatusUUID; // Для сравнения текущего статуса
+
+                    Guid targetStatusGuid = Guid.Empty; // Инициализируем
+                    string targetStatusName = string.Empty; // Инициализируем
+
+                    // --- Логика определения следующего статуса ---
+
+                    // 1. Если текущий статус "Готов к выдаче" -> меняем на "Выполнен" (Кнопка "Заказ получен")
+                    if (orderToComplete.IdСтатуса == ReadyForPickupStatusUUID)
+                    {
+                        targetStatusGuid = completedGuid;
+                        targetStatusName = "Выполнен";
+                    }
+                    // 2. Если текущий статус "Ожидает курьера" -> меняем на "В пути" (Кнопка "Передан курьеру")
+                    else if (orderToComplete.IdСтатуса == AwaitingCourierStatusUUID)
+                    {
+                        targetStatusGuid = inTransitGuid;
+                        targetStatusName = "В пути";
+                    }
+                    // 3. Если текущий статус "Принят" ИЛИ "Готовится" -> проверяем тип заказа (Кнопка "Готово")
+                    else if (orderToComplete.IdСтатуса == AcceptedStatusUUID || orderToComplete.IdСтатуса == PreparingStatusUUID)
+                    {
+                        // --- Вот она, проверка типа заказа! ---
+                        if (orderToComplete.IdТипа == deliveryGuid) // Если тип = Доставка
+                        {
+                            targetStatusGuid = awaitingCourierGuid; // Меняем на "Ожидает курьера"
+                            targetStatusName = "Ожидает курьера";
+                        }
+                        else // Если тип НЕ Доставка (Самовывоз и т.д.)
+                        {
+                            targetStatusGuid = readyForPickupGuid; // Меняем на "Готов к выдаче"
+                            targetStatusName = "Готов к выдаче";
+                        }
+                    }
+                    else // Обработка других статусов, если они вдруг попадут в этот список
+                    {
+                        // Найдем имя текущего статуса для сообщения
+                        _statusNamesDictionary.TryGetValue(orderToComplete.IdСтатуса, out string currentStatusName);
+                        MessageBox.Show($"Для заказа со статусом '{currentStatusName ?? orderToComplete.IdСтатуса.ToString()}' действие не определено в этой логике.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return; // Ничего не делаем
+                    }
+
+                    // --- Если целевой статус определен, обновляем заказ ---
+                    if (targetStatusGuid != Guid.Empty)
+                    {
+                        var updateResponse = await App.SupabaseClient
+                           .From<Заказы>()
+                           .Where(x => x.Id == orderId)
+                           .Set(x => x.IdСтатуса, targetStatusGuid)
+                           .Update();
+
+                        if (updateResponse.ResponseMessage.IsSuccessStatusCode)
+                        {
+                            MessageBox.Show($"Статус заказа успешно обновлен на '{targetStatusName}'.");
+                            // Обновляем список текущих заказов, чтобы убрать/обновить карточку
+                            await LoadCurrentOrdersAsync();
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Ошибка при обновлении статуса заказа: {updateResponse.ResponseMessage?.ReasonPhrase ?? "Неизвестная ошибка"}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    // Если targetStatusGuid остался пустым (хотя по логике выше этого не должно быть, кроме информационного сообщения), ничего не делаем
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Произошла ошибка при обработке действия с заказом: {ex.Message}", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        private async void CompleteOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Guid orderId)
+            {
+                try
+                {
+                    // Получаем ID типа заказа "Доставка" из App.config
+                    string deliveryTypeUUID = ConfigurationManager.AppSettings["DeliveryTypeUUID"];
+                    if (!Guid.TryParse(deliveryTypeUUID, out Guid deliveryGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для DeliveryTypeUUID: {deliveryTypeUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // Получаем ID статусов из App.config
+                    string awaitingCourierStatusUUID = ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"];
+                    string readyForPickupStatusUUID = ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"];
+
+                    if (!Guid.TryParse(awaitingCourierStatusUUID, out Guid awaitingCourierGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для AwaitingCourierStatusUUID: {awaitingCourierStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    if (!Guid.TryParse(readyForPickupStatusUUID, out Guid readyForPickupGuid))
+                    {
+                        MessageBox.Show($"Неверный формат GUID для ReadyForPickupStatusUUID: {readyForPickupStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    //Находим заказ в коллекции
+                    CurrentOrderViewModel orderToComplete = CurrentOrders.FirstOrDefault(x => x.Id == orderId);
+                    if (orderToComplete == null)
+                    {
+                        MessageBox.Show("Заказ не найден в списке текущих заказов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    Guid targetStatusGuid = (orderToComplete.IdТипа == deliveryGuid) ? awaitingCourierGuid : readyForPickupGuid;
+                    string targetStatusName = (orderToComplete.IdТипа == deliveryGuid) ? "Ожидает курьера" : "Готов к выдаче";
+
+                    // Обновляем статус заказа
+                    var update = new Заказы
+                    {
+                        Id = orderId,
+                        IdСтатуса = targetStatusGuid
+                    };
+
+                    var updateResponse = await App.SupabaseClient
+                        .From<Заказы>()
+                        .Where(x => x.Id == orderId)
+                        .Set(x => x.IdСтатуса, targetStatusGuid)
+                        .Update();
+
+                    if (updateResponse.ResponseMessage.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show($"Статус заказа успешно обновлен на '{targetStatusName}'.");
+                        await LoadCurrentOrdersAsync();
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Ошибка при обновлении статуса заказа: {updateResponse.ResponseMessage.ReasonPhrase}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Произошла ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
         private async Task LoadCurrentOrdersAsync()
         {
-            CurrentOrders.Clear();
+            ObservableCollection<CurrentOrderViewModel> targetCollection = new ObservableCollection<CurrentOrderViewModel>();
 
             try
             {
@@ -137,6 +444,9 @@ namespace ChickenAndPoint
                 // Получение ID статусов из конфигурации
                 string acceptedStatusUUID = ConfigurationManager.AppSettings["AcceptedStatusUUID"];
                 string preparingStatusUUID = ConfigurationManager.AppSettings["PreparingStatusUUID"];
+                string readyForPickupStatusUUID = ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"];
+                string awaitingCourierStatusUUID = ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"];
+
                 List<Guid> statusUUIDs = new List<Guid>();
 
                 if (Guid.TryParse(acceptedStatusUUID, out Guid acceptedGuid)) statusUUIDs.Add(acceptedGuid);
@@ -145,9 +455,15 @@ namespace ChickenAndPoint
                 if (Guid.TryParse(preparingStatusUUID, out Guid preparingGuid)) statusUUIDs.Add(preparingGuid);
                 else MessageBox.Show($"Неверный формат GUID для PreparingStatusUUID: {preparingStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
 
+                if (Guid.TryParse(readyForPickupStatusUUID, out Guid readyGuid)) statusUUIDs.Add(readyGuid); // Добавляем новый статус
+                else MessageBox.Show($"Неверный формат GUID для ReadyForPickupStatusUUID: {readyForPickupStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (Guid.TryParse(awaitingCourierStatusUUID, out Guid awaitingCourierGuid)) statusUUIDs.Add(awaitingCourierGuid); // Добавляем в список
+                else MessageBox.Show($"Неверный формат GUID для AwaitingCourierStatusUUID: {awaitingCourierStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 if (statusUUIDs.Count == 0)
                 {
-                    MessageBox.Show($"Не удалось определить UUID статусов 'Принят' или 'Готовится' из конфигурации.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Не удалось определить UUID статусов из конфигурации.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -160,7 +476,7 @@ namespace ChickenAndPoint
                 {
                     var filteredOrders = ordersResponse.Models
                         .Where(order => statusUUIDs.Contains(order.IdСтатуса))
-                        .OrderByDescending(o => o.ВремяСоздания)
+                        .OrderBy(o => o.ВремяСоздания)
                         .ToList();
 
                     if (!filteredOrders.Any())
@@ -170,6 +486,9 @@ namespace ChickenAndPoint
 
                     var dishesResponse = await App.SupabaseClient.From<Блюда>().Select("*").Get();
                     var allDishesDictionary = dishesResponse?.Models?.ToDictionary(d => d.Id, d => d);
+
+                    var categoriesResponse = await App.SupabaseClient.From<Категории>().Select("*").Get();
+                    var allCategoriesDictionary = categoriesResponse?.Models?.ToDictionary(category => category.Id, category => category);
 
                     var allOrderItemsResponse = await App.SupabaseClient
                         .From<СоставЗаказа>()
@@ -193,33 +512,46 @@ namespace ChickenAndPoint
                             foreach (var item in orderItemsList)
                             {
                                 string dishName = "Блюдо (?)";
-                                string imageUrl = null;
+                                Guid categoryId = Guid.Empty;
+                                string iconUrl = null;
+
                                 if (allDishesDictionary != null && allDishesDictionary.TryGetValue(item.IdБлюда, out Блюда dish))
                                 {
                                     dishName = dish.НазваниеБлюда ?? dishName;
-                                    imageUrl = dish.СсылкаНаИзображение;
+                                    categoryId = dish.IdКатегории;
+
+                                    if (allCategoriesDictionary != null && allCategoriesDictionary.TryGetValue(dish.IdКатегории, out Категории category))
+                                    {
+                                        iconUrl = category.СсылкаНаИконку;
+                                    }
                                 }
 
                                 orderItems.Add(new OrderItemDisplayViewModel
                                 {
                                     НазваниеБлюда = dishName,
                                     Количество = item.Количество,
-                                    ЦенаНаМоментЗаказа = item.ЦенаНаМоментЗаказа, 
-                                    СсылкаНаИзображение = imageUrl
+                                    ЦенаНаМоментЗаказа = item.ЦенаНаМоментЗаказа,
+                                    IdКатегории = categoryId,
+                                    СсылкаНаИконкуКатегории = iconUrl //НОВОЕ
                                 });
                             }
                         }
 
                         if (orderItems.Any())
                         {
-                            CurrentOrders.Add(new CurrentOrderViewModel
+                            targetCollection.Add(new CurrentOrderViewModel
                             {
                                 Id = order.Id,
                                 НомерЗаказа = order.НомерЗаказа ?? "Нет номера",
-                                Items = orderItems
+                                Items = orderItems,
+                                ВремяСоздания = order.ВремяСоздания,
+                                IdТипа = order.IdТипа,
+                                IdСтатуса = order.IdСтатуса
                             });
                         }
                     }
+                    CurrentOrders = targetCollection;
+                    CurrentOrdersItemsControl.ItemsSource = CurrentOrders;
                 }
             }
             catch (Exception ex)
@@ -228,6 +560,43 @@ namespace ChickenAndPoint
             }
         }
 
+        private void ToggleFullScreenButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                WindowState = WindowState.Maximized;
+                WindowStyle = WindowStyle.None;
+                ResizeMode = ResizeMode.NoResize;
+                //Скрываем левое меню
+                LeftMenuPanel.Visibility = Visibility.Collapsed;
+
+                ToggleFullScreenButton.Content = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Children = {
+                        new MaterialDesignThemes.Wpf.PackIcon { Kind = MaterialDesignThemes.Wpf.PackIconKind.FullscreenExit, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,10,0) },
+                        new TextBlock { Text = "Свернуть", VerticalAlignment = VerticalAlignment.Center }
+                       }
+                };
+            }
+            else
+            {
+                WindowState = WindowState.Normal;
+                WindowStyle = WindowStyle.SingleBorderWindow;
+                ResizeMode = ResizeMode.CanResize;
+                //Возвращаем видимость левого меню
+                LeftMenuPanel.Visibility = Visibility.Visible;
+
+                ToggleFullScreenButton.Content = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Children = {
+                        new MaterialDesignThemes.Wpf.PackIcon { Kind = MaterialDesignThemes.Wpf.PackIconKind.Fullscreen, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,10,0) },
+                        new TextBlock { Text = "Во весь экран", VerticalAlignment = VerticalAlignment.Center }
+                       }
+                };
+            }
+        }
         private void LoadProfileData()
         {
             if (_loggedInUser != null)
@@ -243,95 +612,95 @@ namespace ChickenAndPoint
         }
 
         private async Task LoadOrdersHistoryWithDetailsAsync()
-    {
-        OrdersStatusText.Text = "Загрузка данных истории...";
-        OrdersStatusText.Visibility = Visibility.Visible;
-        OrdersDataGrid.ItemsSource = null;
-        _allLoadedOrders.Clear();
-        _clientNamesDictionary.Clear();
-        _statusNamesDictionary.Clear();
-        _typeNamesDictionary.Clear();
-
-        StatusFilterComboBox.ItemsSource = null;
-        TypeFilterComboBox.ItemsSource = null;
-
-        try
         {
-            if (App.SupabaseClient == null)
+            OrdersStatusText.Text = "Загрузка данных истории...";
+            OrdersStatusText.Visibility = Visibility.Visible;
+            OrdersDataGrid.ItemsSource = null;
+            _allLoadedOrders.Clear();
+            _clientNamesDictionary.Clear();
+            _statusNamesDictionary.Clear();
+            _typeNamesDictionary.Clear();
+
+            StatusFilterComboBox.ItemsSource = null;
+            TypeFilterComboBox.ItemsSource = null;
+
+            try
             {
-                OrdersStatusText.Text = "Ошибка: Клиент Supabase не инициализирован.";
-                return;
-            }
+                if (App.SupabaseClient == null)
+                {
+                    OrdersStatusText.Text = "Ошибка: Клиент Supabase не инициализирован.";
+                    return;
+                }
 
-            var statusesTask = App.SupabaseClient.From<СтатусЗаказа>().Select("*").Get();
-            var typesTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Get();
-            await Task.WhenAll(statusesTask, typesTask);
+                var statusesTask = App.SupabaseClient.From<СтатусЗаказа>().Select("*").Get();
+                var typesTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Get();
+                await Task.WhenAll(statusesTask, typesTask);
 
-            var statusesResponse = statusesTask.Result;
-            if (statusesResponse?.Models != null)
-            {
-                _statusNamesDictionary = statusesResponse.Models.ToDictionary(s => s.Id, s => s.НазваниеСтатуса ?? "?");
-                PopulateFilterComboBox(StatusFilterComboBox, _statusNamesDictionary, "статусы");
-            }
-            else { OrdersStatusText.Text = "Ошибка: Не удалось загрузить статусы."; }
+                var statusesResponse = statusesTask.Result;
+                if (statusesResponse?.Models != null)
+                {
+                    _statusNamesDictionary = statusesResponse.Models.ToDictionary(s => s.Id, s => s.НазваниеСтатуса ?? "?");
+                    PopulateFilterComboBox(StatusFilterComboBox, _statusNamesDictionary, "статусы");
+                }
+                else { OrdersStatusText.Text = "Ошибка: Не удалось загрузить статусы."; }
 
-            var typesResponse = typesTask.Result;
-            if (typesResponse?.Models != null)
-            {
-                _typeNamesDictionary = typesResponse.Models.ToDictionary(t => t.Id, t => t.НазваниеТипа ?? "?");
-                PopulateFilterComboBox(TypeFilterComboBox, _typeNamesDictionary, "типы");
-            }
-            else { OrdersStatusText.Text = "Ошибка: Не удалось загрузить типы."; }
+                var typesResponse = typesTask.Result;
+                if (typesResponse?.Models != null)
+                {
+                    _typeNamesDictionary = typesResponse.Models.ToDictionary(t => t.Id, t => t.НазваниеТипа ?? "?");
+                    PopulateFilterComboBox(TypeFilterComboBox, _typeNamesDictionary, "типы");
+                }
+                else { OrdersStatusText.Text = "Ошибка: Не удалось загрузить типы."; }
 
-            var ordersResponse = await App.SupabaseClient.From<Заказы>().Select("*").Get();
+                var ordersResponse = await App.SupabaseClient.From<Заказы>().Select("*").Get();
 
-            if (ordersResponse?.Models == null || !ordersResponse.Models.Any())
-            {
-                OrdersStatusText.Text = "История заказов пуста.";
-                _allLoadedOrders = new List<OrderDisplayViewModel>();
+                if (ordersResponse?.Models == null || !ordersResponse.Models.Any())
+                {
+                    OrdersStatusText.Text = "История заказов пуста.";
+                    _allLoadedOrders = new List<OrderDisplayViewModel>();
+                    ApplyFilters();
+                    OrdersStatusText.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
+                var orders = ordersResponse.Models;
+                var clientIds = orders.Select(o => o.IdКлиента.ToString()).Distinct().ToList();
+
+                if (clientIds.Any())
+                {
+                    var usersResponse = await App.SupabaseClient.From<Пользователь>().Select("*").Filter("id", Operator.In, clientIds).Get();
+                    if (usersResponse?.Models != null)
+                        _clientNamesDictionary = usersResponse.Models.ToDictionary(u => u.Id, u => u.ПолноеИмя ?? "Имя не указано");
+                }
+
+                var viewModels = orders.Select(order => new OrderDisplayViewModel
+                {
+                    Id = order.Id,
+                    НомерЗаказа = order.НомерЗаказа ?? "-",
+                    ИмяКлиента = _clientNamesDictionary.TryGetValue(order.IdКлиента, out string clientName) ? clientName : "Клиент (?)",
+                    НазваниеСтатуса = _statusNamesDictionary.TryGetValue(order.IdСтатуса, out string statusName) ? statusName : "Статус (?)",
+                    НазваниеТипа = _typeNamesDictionary.TryGetValue(order.IdТипа, out string typeName) ? typeName : "Тип (?)",
+                    АдресДоставки = order.АдресДоставки ?? "---",
+                    ИтоговаяСумма = order.ИтоговаяСумма,
+                    ВремяСоздания = order.ВремяСоздания,
+                    ВремяОбновления = order.ВремяОбновления,
+                    IdСтатуса = order.IdСтатуса,
+                    IdТипа = order.IdТипа
+                }).ToList();
+
+                var sortedViewModels = viewModels.OrderByDescending(vm => vm.ВремяСоздания).ToList();
+                _allLoadedOrders = sortedViewModels;
                 ApplyFilters();
                 OrdersStatusText.Visibility = Visibility.Collapsed;
-                return;
             }
-
-            var orders = ordersResponse.Models;
-            var clientIds = orders.Select(o => o.IdКлиента.ToString()).Distinct().ToList();
-
-            if (clientIds.Any())
+            catch (Exception ex)
             {
-                var usersResponse = await App.SupabaseClient.From<Пользователь>().Select("*").Filter("id", Operator.In, clientIds).Get();
-                if (usersResponse?.Models != null)
-                    _clientNamesDictionary = usersResponse.Models.ToDictionary(u => u.Id, u => u.ПолноеИмя ?? "Имя не указано");
+                OrdersStatusText.Text = $"Ошибка загрузки истории: {ex.Message}";
+                MessageBox.Show($"Ошибка загрузки истории заказов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                _allLoadedOrders = new List<OrderDisplayViewModel>();
+                ApplyFilters();
             }
-
-            var viewModels = orders.Select(order => new OrderDisplayViewModel
-            {
-                Id = order.Id,
-                НомерЗаказа = order.НомерЗаказа ?? "-",
-                ИмяКлиента = _clientNamesDictionary.TryGetValue(order.IdКлиента, out string clientName) ? clientName : "Клиент (?)",
-                НазваниеСтатуса = _statusNamesDictionary.TryGetValue(order.IdСтатуса, out string statusName) ? statusName : "Статус (?)",
-                НазваниеТипа = _typeNamesDictionary.TryGetValue(order.IdТипа, out string typeName) ? typeName : "Тип (?)",
-                АдресДоставки = order.АдресДоставки ?? "---",
-                ИтоговаяСумма = order.ИтоговаяСумма ,
-                ВремяСоздания = order.ВремяСоздания,
-                ВремяОбновления = order.ВремяОбновления,
-                IdСтатуса = order.IdСтатуса,
-                IdТипа = order.IdТипа
-            }).ToList();
-
-            var sortedViewModels = viewModels.OrderByDescending(vm => vm.ВремяСоздания).ToList();
-            _allLoadedOrders = sortedViewModels;
-            ApplyFilters();
-            OrdersStatusText.Visibility = Visibility.Collapsed;
         }
-        catch (Exception ex)
-        {
-            OrdersStatusText.Text = $"Ошибка загрузки истории: {ex.Message}";
-            MessageBox.Show($"Ошибка загрузки истории заказов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            _allLoadedOrders = new List<OrderDisplayViewModel>();
-            ApplyFilters();
-        }
-    }
 
         private void PopulateFilterComboBox(ComboBox comboBox, Dictionary<Guid, string> dataSource, string typeName)
         {

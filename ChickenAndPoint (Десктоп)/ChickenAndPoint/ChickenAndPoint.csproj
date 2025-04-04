@@ -150,6 +150,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\Блюда.cs" />
     <Compile Include="Models\Заказы.cs" />
+    <Compile Include="Models\Категории.cs" />
     <Compile Include="Models\СоставЗаказа.cs" />
     <Compile Include="Models\СтатусЗаказа.cs" />
     <Compile Include="Models\ТипЗаказа.cs" />

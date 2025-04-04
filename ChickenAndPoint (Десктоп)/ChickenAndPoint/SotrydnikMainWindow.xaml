@@ -17,9 +17,19 @@
 
     <Window.Resources>
         <local:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
+        <local:SubtractValueConverter x:Key="SubtractConverter"/>
+        <local:MinimumValueConverter x:Key="MinSizeConverter"/>
+        <local:StatusToButtonTextConverter x:Key="StatusConverter" />
         <SolidColorBrush x:Key="CompletedOrderBackgroundBrush" Color="#E8F5E9"/>
         <SolidColorBrush x:Key="CancelledOrderBackgroundBrush" Color="#FFEBEE"/>
         <SolidColorBrush x:Key="ActiveOrderBackgroundBrush" Color="#FFF8E1"/>
+
+        <SolidColorBrush x:Key="ReadyStateButtonBackgroundBrush" Color="#4CAF50"/>
+        <SolidColorBrush x:Key="ReadyStateButtonForegroundBrush" Color="White"/>
+        <LinearGradientBrush x:Key="ReadyStateCardBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E8F5E9" Offset="0.0" />
+            <GradientStop Color="#C8E6C9" Offset="1.0" />
+        </LinearGradientBrush>
 
         <Style x:Key="HighlightCompletedRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource MaterialDesignDataGridRow}">
             <Style.Triggers>
@@ -33,19 +43,23 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="В пути">
                     <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
-                    <Setter Property="ToolTip" Value="Новый заказ"/>
+                    <Setter Property="ToolTip" Value="Заказ доставляется"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="Готов к выдаче">
                     <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
-                    <Setter Property="ToolTip" Value="Заказ готовится"/>
+                    <Setter Property="ToolTip" Value="Заказ готов к выдаче"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="Готовится">
                     <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
-                    <Setter Property="ToolTip" Value="Заказ доставляется"/>
+                    <Setter Property="ToolTip" Value="Заказ готовится"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="Принят">
                     <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
-                    <Setter Property="ToolTip" Value="Заказ доставляется"/>
+                    <Setter Property="ToolTip" Value="Заказ принят"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding НазваниеСтатуса}" Value="Ожидает курьера">
+                    <Setter Property="Background" Value="{StaticResource ActiveOrderBackgroundBrush}"/>
+                    <Setter Property="ToolTip" Value="Заказ ожидает курьера"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -68,6 +82,25 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="CurrentOrderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{Binding ElementName=ZoomSlider, Path=Value}"/>
+        </Style>
+
+        <Style x:Key="CurrentOrderTypeIconStyle" TargetType="materialDesign:PackIcon">
+            <Setter Property="Kind" Value="PackageVariantClosed"/>
+            <Setter Property="ToolTip" Value="Самовывоз"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidBrush}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IdТипа}" Value="{x:Static local:SotrydnikMainWindow.DeliveryTypeUUID}">
+                    <Setter Property="Kind" Value="TruckDeliveryOutline"/>
+                    <Setter Property="ToolTip" Value="Доставка"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -76,7 +109,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Background="{DynamicResource PrimaryHueMidBrush}" Width="190">
+        <StackPanel x:Name="LeftMenuPanel" Grid.Column="0" Background="{DynamicResource PrimaryHueMidBrush}" Width="190">
             <Button x:Name="ProfileButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="Профиль">
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -117,55 +150,180 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Текущие заказы" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10" Grid.Row="0"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10 10 10 5">
+                    <TextBlock Text="Текущие заказы" Style="{StaticResource MaterialDesignHeadline6TextBlock}" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                    <materialDesign:PackIcon Kind="MagnifyMinusOutline" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{DynamicResource MaterialDesignBodyLight}" Width="22" Height="22"/>
+                    <Slider x:Name="ZoomSlider"
+                        Width="200"
+                        Minimum="12"
+                        Maximum="49"
+                        Value="14"
+                        TickFrequency="0.5"
+                        IsSnapToTickEnabled="True"
+                        VerticalAlignment="Center"/>
+                    <materialDesign:PackIcon Kind="MagnifyPlusOutline" VerticalAlignment="Center" Margin="5,0,0,0" Foreground="{DynamicResource MaterialDesignBodyLight}" Width="22" Height="22"/>
+                    <Button x:Name="ToggleFullScreenButton"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"
+                        Margin="20,0,0,0"
+                        Click="ToggleFullScreenButton_Click"
+                        ToolTip="Во весь экран / Свернуть"
+                        VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Fullscreen" VerticalAlignment="Center" Margin="0,0,5,0" Width="25" Height="25"/>
+                            <TextBlock Text="Во весь экран" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
 
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl x:Name="CurrentOrdersItemsControl" ItemsSource="{Binding CurrentOrders}" Margin="10" FontSize="16">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              Padding="5" ScrollViewer.CanContentScroll="True">
+                    <ItemsControl x:Name="CurrentOrdersItemsControl" ItemsSource="{Binding CurrentOrders}" Margin="5">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal"/>
+                                <WrapPanel Orientation="Horizontal" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type local:CurrentOrderViewModel}">
-                                <materialDesign:Card Width="Auto" Height="Auto" Margin="5" Padding="10" UniformCornerRadius="5">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding НомерЗаказа, StringFormat=Заказ: {0}}" FontWeight="Bold" Margin="0,0,5,5"/>
+                                <Border Margin="8"
+                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                         CornerRadius="8">
+                                    <materialDesign:Card
+                                             Width="Auto" MinWidth="200"
+                                             Height="Auto"
+                                             Padding="15"
+                                             UniformCornerRadius="8">
+                                        <materialDesign:Card.Style>
+                                            <Style TargetType="materialDesign:Card">
+                                                <Setter Property="Background" Value="{DynamicResource MaterialDesignPaper}" />
+                                                <Setter Property="Opacity" Value="1.0" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IdСтатуса}" Value="{x:Static local:SotrydnikMainWindow.AwaitingCourierStatusUUID}">
+                                                        <Setter Property="Background" Value="{StaticResource ReadyStateCardBackgroundBrush}"/>
+                                                        <Setter Property="Opacity" Value="0.85"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IdСтатуса}" Value="{x:Static local:SotrydnikMainWindow.ReadyForPickupStatusUUID}">
+                                                        <Setter Property="Background" Value="{StaticResource ReadyStateCardBackgroundBrush}"/>
+                                                        <Setter Property="Opacity" Value="0.85"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:Card.Style>
+                                        <DockPanel LastChildFill="True">
+                                            <Button
+                                                  x:Name="OrderActionButton"
+                                                  Click="OrderActionButton_Click"
+                                                  Tag="{Binding Id}"
+                                                  HorizontalAlignment="Stretch"
+                                                  DockPanel.Dock="Bottom"
+                                                  Margin="0,10,0,0"
+                                                  Content="{Binding IdСтатуса, Converter={StaticResource StatusConverter}}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IdСтатуса}" Value="{x:Static local:SotrydnikMainWindow.AwaitingCourierStatusUUID}">
+                                                                <Setter Property="Background" Value="{StaticResource ReadyStateButtonBackgroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource ReadyStateButtonForegroundBrush}"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IdСтатуса}" Value="{x:Static local:SotrydnikMainWindow.ReadyForPickupStatusUUID}">
+                                                                <Setter Property="Background" Value="{StaticResource ReadyStateButtonBackgroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource ReadyStateButtonForegroundBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            <StackPanel>
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <materialDesign:PackIcon Grid.Column="0" Style="{StaticResource CurrentOrderTypeIconStyle}">
+                                                        <materialDesign:PackIcon.Width>
+                                                            <Binding ElementName="ZoomSlider" Path="Value"
+                                                                  Converter="{StaticResource MinSizeConverter}"
+                                                                  ConverterParameter="24"/>
+                                                        </materialDesign:PackIcon.Width>
+                                                        <materialDesign:PackIcon.Height>
+                                                            <Binding ElementName="ZoomSlider" Path="Value"
+                                                                  Converter="{StaticResource MinSizeConverter}"
+                                                                  ConverterParameter="24"/>
+                                                        </materialDesign:PackIcon.Height>
+                                                    </materialDesign:PackIcon>
+                                                    <TextBlock Grid.Column="1"
+                                                                Text="{Binding НомерЗаказа, StringFormat=ЗАКАЗ ({0})}"
+                                                                FontWeight="Bold"
+                                                                VerticalAlignment="Center"
+                                                                Style="{StaticResource CurrentOrderStyle}"/>
+                                                    <TextBlock Grid.Column="2"
+                                                            Text="{Binding ВремяСоздания, StringFormat=HH:mm dd.MM}"
+                                                            FontStyle="Italic"
+                                                            Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Right"
+                                                            Margin="25,0,0,0">
+                                                        <TextBlock.FontSize>
+                                                            <Binding ElementName="ZoomSlider" Path="Value"
+                                                              Converter="{StaticResource SubtractConverter}"
+                                                              ConverterParameter="4"/>
+                                                        </TextBlock.FontSize>
+                                                    </TextBlock>
+                                                </Grid>
+                                                <Separator Height="1" Background="{DynamicResource MaterialDesignDivider}" Margin="0,5,0,10"/>
+                                                <ItemsControl ItemsSource="{Binding Items}" Margin="0,0,0,5">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type local:OrderItemDisplayViewModel}">
+                                                            <Grid Margin="0,3,0,3">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
 
-                                        <ItemsControl ItemsSource="{Binding Items}" Margin="0,5,0,5">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel Orientation="Horizontal"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type local:OrderItemDisplayViewModel}">
-                                                    <Image Width="65" Height="65" Margin="2"
-                                                        Source="{Binding СсылкаНаИзображение, Converter={StaticResource ImageUrlConverter}}"
-                                   Stretch="UniformToFill">
-                                                        <Image.ToolTip>
-                                                            <TextBlock Text="{Binding НазваниеБлюда}"/>
-                                                        </Image.ToolTip>
-                                                    </Image>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                        <TextBlock Text="Состав:" FontWeight="Medium" Margin="0,5,0,2"/>
-                                        <Separator Height="3"
-                                           Background="{DynamicResource MaterialDesignDivider}"
-                                           Margin="0,3,0,5"/>
-                                        <ItemsControl ItemsSource="{Binding Items}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type local:OrderItemDisplayViewModel}">
-                                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                                                        <TextBlock Text="{Binding НазваниеБлюда}"/>
-                                                        <TextBlock Text="{Binding Количество, StringFormat=' ({0})'}" Margin="5,0,0,0"/>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </materialDesign:Card>
+                                                                <Image Grid.Column="0"
+                                                                    Margin="0,0,8,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Source="{Binding СсылкаНаИконкуКатегории, Converter={StaticResource ImageUrlConverter}}">       
+                                                                    <Image.Width>
+                                                                        <Binding ElementName="ZoomSlider" Path="Value"
+                                                                              Converter="{StaticResource MinSizeConverter}"
+                                                                              ConverterParameter="24"/>
+                                                                            </Image.Width>
+                                                                            <Image.Height>
+                                                                        <Binding ElementName="ZoomSlider" Path="Value"
+                                                                              Converter="{StaticResource MinSizeConverter}"
+                                                                              ConverterParameter="24"/>
+                                                                    </Image.Height>
+                                                                </Image>
+
+                                                                <TextBlock Grid.Column="1"  Foreground="Black"
+                                                                    Text="{Binding НазваниеБлюда}"
+                                                                    VerticalAlignment="Center"
+                                                                    Margin="0,0,25,0"
+                                                                    Style="{StaticResource CurrentOrderStyle}"
+                                                                    TextWrapping="Wrap"/>           
+                                                                <TextBlock Grid.Column="2"
+                                                                    Text="{Binding Количество, StringFormat='x {0}'}"
+                                                                    Margin="0,0,0,0"
+                                                                    FontWeight="Medium"
+                                                                    VerticalAlignment="Center"
+                                                                    Style="{StaticResource CurrentOrderStyle}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </materialDesign:Card>
+                                </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -188,7 +346,6 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-
                             <TextBlock Text="Фильтры:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Medium"/>
                             <ComboBox x:Name="StatusFilterComboBox" Grid.Row="0" Grid.Column="1"
                                        materialDesign:HintAssist.Hint="Статус заказа"

@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using ChickenAndPoint.Models;
+using static Postgrest.Constants;
 
 namespace ChickenAndPoint
 {
-
     public partial class OrderDetailsWindow : Window
     {
         private Guid _orderId;
         private Dictionary<Guid, Блюда> _allDishesDictionary = new Dictionary<Guid, Блюда>();
-        string orderNumber;
+        string orderNumber = "???";
+
         public OrderDetailsWindow(Guid orderId)
         {
             InitializeComponent();
@@ -30,7 +32,8 @@ namespace ChickenAndPoint
         {
             StatusTextBlock.Text = "Загрузка данных...";
             StatusTextBlock.Visibility = Visibility.Visible;
-            OrderItemsDataGrid.ItemsSource = null;
+            OrderItemsItemsControl.ItemsSource = null;
+            TotalSumTextBlock.Visibility = Visibility.Collapsed;
             List<OrderItemDisplayViewModel> viewModels = new List<OrderItemDisplayViewModel>();
             _allDishesDictionary.Clear();
 
@@ -39,17 +42,27 @@ namespace ChickenAndPoint
                 if (App.SupabaseClient == null)
                 {
                     StatusTextBlock.Text = "Ошибка: Клиент Supabase не инициализирован.";
+                    StatusTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
-                var orderHeaderResponse = await App.SupabaseClient
-                        .From<Заказы>()
-                        .Select("НомерЗаказа")
-                        .Filter("id", Postgrest.Constants.Operator.Equals, _orderId.ToString())
-                        .Single();
-                if (orderHeaderResponse != null && !string.IsNullOrEmpty(orderHeaderResponse.НомерЗаказа))
+
+                try
                 {
-                    orderNumber = orderHeaderResponse.НомерЗаказа;
+                    var orderHeaderResponse = await App.SupabaseClient
+                            .From<Заказы>()
+                            .Select("НомерЗаказа")
+                            .Filter("id", Operator.Equals, _orderId.ToString())
+                            .Single();
+                    if (orderHeaderResponse != null && !string.IsNullOrEmpty(orderHeaderResponse.НомерЗаказа))
+                    {
+                        orderNumber = orderHeaderResponse.НомерЗаказа;
+                    }
                 }
+                catch (Exception orderNumEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Не удалось получить номер заказа: {orderNumEx.Message}");
+                }
+
                 WindowTitleTextBlock.Text = $"Состав заказа ({orderNumber})";
 
                 var dishesResponse = await App.SupabaseClient
@@ -64,6 +77,7 @@ namespace ChickenAndPoint
                 else
                 {
                     StatusTextBlock.Text = "Предупреждение: Не удалось загрузить справочник блюд.";
+                    StatusTextBlock.Visibility = Visibility.Visible;
                 }
 
                 var allOrderItemsResponse = await App.SupabaseClient
@@ -71,11 +85,11 @@ namespace ChickenAndPoint
                     .Select("*")
                     .Get();
 
-                if (allOrderItemsResponse?.Models == null || !allOrderItemsResponse.Models.Any())
+                if (allOrderItemsResponse?.Models == null)
                 {
-                    StatusTextBlock.Text = "Позиции заказов не найдены.";
+                    StatusTextBlock.Text = "Не удалось загрузить позиции заказов.";
                     StatusTextBlock.Visibility = Visibility.Visible;
-                    OrderItemsDataGrid.ItemsSource = viewModels;
+                    OrderItemsItemsControl.ItemsSource = viewModels;
                     return;
                 }
 
@@ -87,7 +101,7 @@ namespace ChickenAndPoint
                 {
                     StatusTextBlock.Text = "В этом заказе нет позиций.";
                     StatusTextBlock.Visibility = Visibility.Visible;
-                    OrderItemsDataGrid.ItemsSource = viewModels;
+                    OrderItemsItemsControl.ItemsSource = viewModels;
                     return;
                 }
 
@@ -107,30 +121,45 @@ namespace ChickenAndPoint
                     });
                 }
 
-                OrderItemsDataGrid.ItemsSource = viewModels;
+                OrderItemsItemsControl.ItemsSource = viewModels;
 
                 if (viewModels.Any())
                 {
                     decimal totalSum = viewModels.Sum(vm => vm.СуммаПозиции);
                     TotalSumTextBlock.Text = $"Итого: {totalSum:N2} ₽";
                     TotalSumTextBlock.Visibility = Visibility.Visible;
+                    StatusTextBlock.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     TotalSumTextBlock.Visibility = Visibility.Collapsed;
                 }
 
-                StatusTextBlock.Visibility = Visibility.Collapsed;
-
             }
             catch (Exception ex)
             {
                 StatusTextBlock.Text = $"Ошибка загрузки состава заказа: {ex.Message}";
-                if (ex.InnerException is Postgrest.Exceptions.PostgrestException pgEx)
+                if (ex.InnerException != null)
                 {
-                    StatusTextBlock.Text += $"\nДетали: {pgEx.Message}";
+                    StatusTextBlock.Text += $"\nДетали: {ex.InnerException.Message}";
                 }
+                StatusTextBlock.Visibility = Visibility.Visible;
                 MessageBox.Show(StatusTextBlock.Text, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                OrderItemsItemsControl.ItemsSource = new List<OrderItemDisplayViewModel>();
+                TotalSumTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Card_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                this.DragMove();
             }
         }
     }
