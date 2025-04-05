@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +12,12 @@ using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using ChickenAndPoint.Models;
 using static Postgrest.Constants;
-
+using Supabase.Realtime.Interfaces;
+using System.Threading;
+using System.Windows.Threading;
+using Newtonsoft.Json;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 namespace ChickenAndPoint
 {
 
@@ -47,13 +52,40 @@ namespace ChickenAndPoint
         }
 
     }
+    public class ItemCountToColumnsConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            int count = 0;
+
+            if (value is int intCount)
+            {
+                count = intCount;
+            }
+            else if (value is ICollection collection)
+            {
+                count = collection.Count;
+            }
+            if (count > 15)
+                return 4;
+            if (count > 10)
+                return 3;
+            if (count > 5)
+                return 2;
+            return 1;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class MinimumValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            double minimumValue = 0; // Минимальное значение по умолчанию
+            double minimumValue = 0;
 
-            // Пытаемся получить минимальное значение из параметра конвертера
             if (parameter != null)
             {
                 if (parameter is string paramString && double.TryParse(paramString, NumberStyles.Any, CultureInfo.InvariantCulture, out double parsedMin))
@@ -64,31 +96,45 @@ namespace ChickenAndPoint
                 {
                     minimumValue = paramDouble;
                 }
-                // Добавим поддержку int на всякий случай
                 else if (parameter is int paramInt)
                 {
                     minimumValue = paramInt;
                 }
             }
 
-            // Пытаемся получить текущее значение от слайдера
             if (value is double currentValue)
             {
-                // Возвращаем наибольшее из текущего значения и минимума
                 return Math.Max(currentValue, minimumValue);
             }
 
-            // Если значение не double, возвращаем просто минимум (запасной вариант)
             return minimumValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Для привязки размера обычно не нужен
             throw new NotImplementedException();
         }
     }
+    public class OrderTypeDisplayNameConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string typeName)
+            {
+                if (typeName.Equals("Самовывоз с упаковкой", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "Упаковать";
+                }
+                return typeName;
+            }
+            return value;
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class OrderDisplayViewModel
     {
         public Guid Id { get; set; }
@@ -104,27 +150,205 @@ namespace ChickenAndPoint
         public Guid IdТипа { get; set; }
     }
 
-    public class OrderItemDisplayViewModel
+    public class OrderItemDisplayViewModel : INotifyPropertyChanged
     {
-        public string НазваниеБлюда { get; set; }
-        public int Количество { get; set; }
-        public decimal ЦенаНаМоментЗаказа { get; set; }
-        public string СсылкаНаИзображение { get; set; }
+        private string _названиеБлюда;
+        private int _количество;
+        private decimal _ценаНаМоментЗаказа;
+        private string _ссылкаНаИзображение;
+        private Guid _idКатегории;
+        private string _ссылкаНаИконкуКатегории;
+
+        public string НазваниеБлюда
+        {
+            get => _названиеБлюда;
+            set => SetProperty(ref _названиеБлюда, value);
+        }
+        public int Количество
+        {
+            get => _количество;
+            set => SetProperty(ref _количество, value);
+        }
+        public decimal ЦенаНаМоментЗаказа
+        {
+            get => _ценаНаМоментЗаказа;
+            set => SetProperty(ref _ценаНаМоментЗаказа, value);
+        }
+        public string СсылкаНаИзображение
+        {
+            get => _ссылкаНаИзображение;
+            set => SetProperty(ref _ссылкаНаИзображение, value);
+        }
         public decimal СуммаПозиции => Количество * ЦенаНаМоментЗаказа;
 
-        public Guid IdКатегории { get; set; } // НОВОЕ
-        public string СсылкаНаИконкуКатегории { get; set; } //НОВОЕ
+        public Guid IdКатегории
+        {
+            get => _idКатегории;
+            set => SetProperty(ref _idКатегории, value);
+        }
+        public string СсылкаНаИконкуКатегории
+        {
+            get => _ссылкаНаИконкуКатегории;
+            set => SetProperty(ref _ссылкаНаИконкуКатегории, value);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+            storage = value;
+            OnPropertyChanged(propertyName);
+            if (propertyName == nameof(Количество) || propertyName == nameof(ЦенаНаМоментЗаказа))
+            {
+                OnPropertyChanged(nameof(СуммаПозиции));
+            }
+            return true;
+        }
     }
 
-    public class CurrentOrderViewModel
+    public class CurrentOrderViewModel : INotifyPropertyChanged
     {
-        public Guid Id { get; set; }
-        public string НомерЗаказа { get; set; }
-        public List<OrderItemDisplayViewModel> Items { get; set; }
-        public DateTimeOffset ВремяСоздания { get; set; }
-        public Guid IdТипа { get; set; }
+        private Guid _id;
+        private string _номерЗаказа;
+        private ObservableCollection<OrderItemDisplayViewModel> _items;
+        private DateTimeOffset _времяСоздания;
+        private DateTimeOffset _времяОбновления;
+        private Guid _idТипа;
+        private string _названиеТипа;
+        private Guid _idСтатуса;
 
-        public Guid IdСтатуса { get; set; }
+        public Guid Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
+        public string НомерЗаказа
+        {
+            get => _номерЗаказа;
+            set => SetProperty(ref _номерЗаказа, value);
+        }
+
+        public ObservableCollection<OrderItemDisplayViewModel> Items
+        {
+            get => _items;
+            set => SetProperty(ref _items, value);
+        }
+
+        public DateTimeOffset ВремяСоздания
+        {
+            get => _времяСоздания;
+            set => SetProperty(ref _времяСоздания, value);
+        }
+
+        public DateTimeOffset ВремяОбновления
+        {
+            get => _времяОбновления;
+            set => SetProperty(ref _времяОбновления, value);
+        }
+
+        public Guid IdТипа
+        {
+            get => _idТипа;
+            set => SetProperty(ref _idТипа, value);
+        }
+
+        public string НазваниеТипа
+        {
+            get => _названиеТипа;
+            set => SetProperty(ref _названиеТипа, value);
+        }
+
+        public Guid IdСтатуса
+        {
+            get => _idСтатуса;
+            set => SetProperty(ref _idСтатуса, value);
+        }
+
+        public CurrentOrderViewModel()
+        {
+            Items = new ObservableCollection<OrderItemDisplayViewModel>();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value))
+            {
+                return false;
+            }
+            storage = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        public void UpdateItems(IEnumerable<OrderItemDisplayViewModel> freshItems)
+        {
+            var freshItemsList = freshItems?.ToList() ?? new List<OrderItemDisplayViewModel>();
+            var currentItemsList = this.Items.ToList(); // Копия текущих
+
+            bool collectionChanged = false; // Флаг, что были изменения
+
+            // 1. Удалить те, которых нет в свежих
+            var itemsToRemove = currentItemsList
+                .Where(currentItem => !freshItemsList.Any(freshItem => AreItemsEqual(currentItem, freshItem)))
+                .ToList();
+
+            if (itemsToRemove.Any())
+            {
+                foreach (var itemToRemove in itemsToRemove)
+                {
+                    this.Items.Remove(itemToRemove);
+                }
+                collectionChanged = true;
+            }
+
+
+            // 2. Обновить существующие и добавить новые
+            foreach (var freshItem in freshItemsList)
+            {
+                var existingItem = currentItemsList.FirstOrDefault(currentItem => AreItemsEqual(currentItem, freshItem));
+                if (existingItem != null)
+                {
+                    // Обновляем свойства существующего, если они изменились
+                    // (INotifyPropertyChanged внутри OrderItemDisplayViewModel позаботится об обновлении UI для этого элемента)
+                    if (existingItem.Количество != freshItem.Количество) { existingItem.Количество = freshItem.Количество; }
+                    if (existingItem.ЦенаНаМоментЗаказа != freshItem.ЦенаНаМоментЗаказа) { existingItem.ЦенаНаМоментЗаказа = freshItem.ЦенаНаМоментЗаказа; }
+                }
+                else
+                {
+                    // Добавляем новый
+                    this.Items.Add(freshItem);
+                    collectionChanged = true; // Добавление - это тоже изменение
+                }
+            }
+
+            // 3. ЯВНО УВЕДОМЛЯЕМ ОБ ИЗМЕНЕНИИ КОЛЛЕКЦИИ ITEMS
+            // Это заставит Binding для UniformGrid.Columns пересчитаться
+            if (collectionChanged)
+            {
+                OnPropertyChanged(nameof(Items));
+            }
+
+            // Опциональная сортировка, если нужна
+            // ...
+        }
+
+        private bool AreItemsEqual(OrderItemDisplayViewModel item1, OrderItemDisplayViewModel item2)
+        {
+            return item1 != null && item2 != null &&
+                   item1.НазваниеБлюда == item2.НазваниеБлюда;
+        }
     }
 
     public class ImageUrlToBitmapConverter : IValueConverter
@@ -163,7 +387,7 @@ namespace ChickenAndPoint
             {
                 if (statusId == SotrydnikMainWindow.ReadyForPickupStatusUUID)
                 {
-                    return "Заказ получен";
+                    return "Получен клиентом";
                 }
                 else if (statusId == SotrydnikMainWindow.AwaitingCourierStatusUUID)
                 {
@@ -171,11 +395,11 @@ namespace ChickenAndPoint
                 }
                 else if (statusId == SotrydnikMainWindow.AcceptedStatusUUID)
                 {
-                    return "Готово";
+                    return "Готов";
                 }
                 else if (statusId == SotrydnikMainWindow.PreparingStatusUUID)
                 {
-                    return "Готово";
+                    return "Готов";
                 }
                 else
                 {
@@ -192,8 +416,14 @@ namespace ChickenAndPoint
     }
     public partial class SotrydnikMainWindow : Window
     {
+        private Timer _refreshDebounceTimer;
+        private bool _isRefreshQueued = false;
+        private readonly object _refreshLock = new object();
+
         private Пользователь _loggedInUser;
         private ObservableCollection<CurrentOrderViewModel> _currentOrders = new ObservableCollection<CurrentOrderViewModel>();
+        private IRealtimeChannel _ordersChannel;
+        private IRealtimeChannel _orderItemsChannel;
 
         private Dictionary<Guid, string> _clientNamesDictionary = new Dictionary<Guid, string>();
         private Dictionary<Guid, string> _statusNamesDictionary = new Dictionary<Guid, string>();
@@ -202,25 +432,215 @@ namespace ChickenAndPoint
         private const string AllItemsFilterKey = "[Все]";
 
         public static readonly Guid DeliveryTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["DeliveryTypeUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid PickupTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["PickupTypeUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid PackagingPickupTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["PackagingPickupTypeUUID"] ?? Guid.Empty.ToString());
 
         public static readonly Guid ReadyForPickupStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"] ?? Guid.Empty.ToString());
         public static readonly Guid AwaitingCourierStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"] ?? Guid.Empty.ToString());
         public static readonly Guid PreparingStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["PreparingStatusUUID"] ?? Guid.Empty.ToString());
         public static readonly Guid AcceptedStatusUUID = Guid.Parse(ConfigurationManager.AppSettings["AcceptedStatusUUID"] ?? Guid.Empty.ToString());
 
+        private List<Guid> _currentOrderStatusGuids = new List<Guid>();
+        private Dictionary<Guid, Блюда> _allDishesDictionaryCache = new Dictionary<Guid, Блюда>();
+        private Dictionary<Guid, Категории> _allCategoriesDictionaryCache = new Dictionary<Guid, Категории>();
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         public ObservableCollection<CurrentOrderViewModel> CurrentOrders
         {
             get { return _currentOrders; }
             set { _currentOrders = value; }
         }
-
+        private void QueueOrTriggerRefresh()
+        {
+            lock (_refreshLock)
+            {
+                if (_isRefreshQueued)
+                {
+                    return;
+                }
+                _isRefreshQueued = true;
+                _refreshDebounceTimer?.Dispose();
+                _refreshDebounceTimer = new Timer(async (_) =>
+                {
+                    try
+                    {
+                        await LoadCurrentOrdersAsync();
+                    }
+                    finally
+                    {
+                        lock (_refreshLock)
+                        {
+                            _isRefreshQueued = false;
+                        }
+                        _refreshDebounceTimer?.Dispose();
+                        _refreshDebounceTimer = null;
+                    }
+                }, null, 500, Timeout.Infinite);
+            }
+        }
         public SotrydnikMainWindow(Пользователь user)
         {
             InitializeComponent();
             _loggedInUser = user;
-            DataContext = this;
+            DataContext = this; // Устанавливаем DataContext
+            InitializeStatusGuids();
+            CurrentOrdersItemsControl.ItemsSource = _currentOrders;
+
             ShowProfile();
 
+            Loaded += SotrydnikMainWindow_Loaded;
+            Closed += SotrydnikMainWindow_Closed;
+        }
+
+        private void InitializeStatusGuids()
+        {
+            _currentOrderStatusGuids.Clear();
+            if (AcceptedStatusUUID != Guid.Empty) _currentOrderStatusGuids.Add(AcceptedStatusUUID);
+            if (PreparingStatusUUID != Guid.Empty) _currentOrderStatusGuids.Add(PreparingStatusUUID);
+            if (ReadyForPickupStatusUUID != Guid.Empty) _currentOrderStatusGuids.Add(ReadyForPickupStatusUUID);
+            if (AwaitingCourierStatusUUID != Guid.Empty) _currentOrderStatusGuids.Add(AwaitingCourierStatusUUID);
+        }
+
+        private async void SotrydnikMainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            await CacheDishesAndCategoriesAsync();
+            InitializeRealtimeOrdersSubscription();
+            await LoadCurrentOrdersAsync();
+        }
+
+        private async Task CacheDishesAndCategoriesAsync()
+        {
+            try
+            {
+                if (App.SupabaseClient == null) return;
+
+                var dishesTask = App.SupabaseClient.From<Блюда>().Select("*").Get();
+                var categoriesTask = App.SupabaseClient.From<Категории>().Select("*").Get();
+                var typesTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Get();
+
+                await Task.WhenAll(dishesTask, categoriesTask, typesTask);
+
+                _allDishesDictionaryCache = dishesTask.Result?.Models?.ToDictionary(d => d.Id, d => d) ?? new Dictionary<Guid, Блюда>();
+                _allCategoriesDictionaryCache = categoriesTask.Result?.Models?.ToDictionary(c => c.Id, c => c) ?? new Dictionary<Guid, Категории>();
+                _typeNamesDictionary = typesTask.Result?.Models?.ToDictionary(t => t.Id, t => t.НазваниеТипа ?? "?") ?? new Dictionary<Guid, string>();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка кэширования данных: {ex.Message}", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void InitializeRealtimeOrdersSubscription()
+        {
+            if (App.SupabaseClient == null)
+            {
+                return;
+            }
+
+            try
+            {
+                if (_currentOrderStatusGuids.Count > 0)
+                {
+                    _ordersChannel = App.SupabaseClient.Realtime.Channel("realtime", "public", "Заказы");
+                    if (_ordersChannel != null)
+                    {
+                        _ordersChannel.AddPostgresChangeHandler(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, (sender, change) =>
+                        {
+                            QueueOrTriggerRefresh();
+                        });
+
+                        _ordersChannel.AddPostgresChangeHandler(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Updates, async (sender, change) =>
+                        {
+                            if (change.Payload?.Data?.Record != null)
+                            {
+                                try
+                                {
+                                    string jsonData = JsonConvert.SerializeObject(change.Payload.Data.Record);
+                                    var updatedOrder = JsonConvert.DeserializeObject<Заказы>(jsonData);
+                                    if (updatedOrder != null)
+                                    {
+                                        QueueOrTriggerRefresh();
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    QueueOrTriggerRefresh();
+                                }
+                            }
+                            else
+                            {
+                                QueueOrTriggerRefresh();
+                            }
+                        });
+
+                        _ordersChannel.Subscribe(timeoutMs: 10000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось подписаться на обновления заказов: {ex.Message}", "Ошибка Realtime", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            try
+            {
+                _orderItemsChannel = App.SupabaseClient.Realtime.Channel("realtime", "public", "СоставЗаказа");
+                if (_orderItemsChannel != null)
+                {
+                    _orderItemsChannel.AddPostgresChangeHandler(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType.Inserts, async (sender, change) =>
+                    {
+                        if (change.Payload?.Data?.Record != null)
+                        {
+                            try
+                            {
+                                string jsonData = JsonConvert.SerializeObject(change.Payload.Data.Record);
+                                var newOrderItem = JsonConvert.DeserializeObject<СоставЗаказа>(jsonData);
+                                if (newOrderItem != null)
+                                {
+                                    QueueOrTriggerRefresh();
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                QueueOrTriggerRefresh();
+                            }
+                        }
+                        else
+                        {
+                            QueueOrTriggerRefresh();
+                        }
+                    });
+
+                    _orderItemsChannel.Subscribe(timeoutMs: 10000);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось подписаться на обновления состава заказов: {ex.Message}", "Ошибка Realtime", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void SotrydnikMainWindow_Closed(object sender, EventArgs e)
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
+
+            if (_ordersChannel != null)
+            {
+                try { _ordersChannel.Unsubscribe(); } catch (Exception) { }
+                _ordersChannel = null;
+            }
+
+            if (_orderItemsChannel != null)
+            {
+                try { _orderItemsChannel.Unsubscribe(); } catch (Exception) { }
+                _orderItemsChannel = null;
+            }
+
+            lock (_refreshLock)
+            {
+                _refreshDebounceTimer?.Dispose();
+                _refreshDebounceTimer = null;
+            }
         }
 
         private void ShowProfile()
@@ -246,128 +666,96 @@ namespace ChickenAndPoint
 
         private async void OrderActionButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag is Guid orderId)
+            if (!(sender is Button button) || !(button.Tag is Guid orderId)) return;
+
+            button.IsEnabled = false;
+
+            CurrentOrderViewModel orderToUpdate = null;
+            await Dispatcher.InvokeAsync(() => {
+                orderToUpdate = _currentOrders.FirstOrDefault(x => x.Id == orderId);
+            });
+
+
+            if (orderToUpdate == null)
             {
-                try
+                MessageBox.Show("Не удалось найти данные заказа для обновления.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                Dispatcher.Invoke(() => button.IsEnabled = true);
+                return;
+            }
+
+            Guid currentStatusGuid = orderToUpdate.IdСтатуса;
+            Guid orderTypeGuid = orderToUpdate.IdТипа;
+
+            try
+            {
+                if (!Guid.TryParse(ConfigurationManager.AppSettings["CompletedStatusUUID"], out Guid completedGuid) ||
+                    !Guid.TryParse(ConfigurationManager.AppSettings["InTransitStatusUUID"], out Guid inTransitGuid) ||
+                    !Guid.TryParse(ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"], out Guid readyForPickupGuid) ||
+                    !Guid.TryParse(ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"], out Guid awaitingCourierGuid))
                 {
-                    // Получаем текущий заказ из коллекции _currentOrders
-                    CurrentOrderViewModel orderToComplete = CurrentOrders.FirstOrDefault(x => x.Id == orderId);
-                    if (orderToComplete == null)
-                    {
-                        MessageBox.Show("Заказ не найден в списке текущих заказов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    // --- Заранее получим все нужные GUID'ы из конфигурации ---
-                    // Для статусов, НА КОТОРЫЕ будем менять
-                    if (!Guid.TryParse(ConfigurationManager.AppSettings["CompletedStatusUUID"], out Guid completedGuid))
-                    {
-                        MessageBox.Show($"Неверный формат GUID для CompletedStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    if (!Guid.TryParse(ConfigurationManager.AppSettings["InTransitStatusUUID"], out Guid inTransitGuid))
-                    {
-                        MessageBox.Show($"Неверный формат GUID для InTransitStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    // --- Ключевые GUID'ы для логики "Готово" ---
-                    if (!Guid.TryParse(ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"], out Guid readyForPickupGuid))
-                    {
-                        MessageBox.Show($"Неверный формат GUID для ReadyForPickupStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    if (!Guid.TryParse(ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"], out Guid awaitingCourierGuid))
-                    {
-                        MessageBox.Show($"Неверный формат GUID для AwaitingCourierStatusUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    // --- GUID типа "Доставка" ---
-                    if (!Guid.TryParse(ConfigurationManager.AppSettings["DeliveryTypeUUID"], out Guid deliveryGuid))
-                    {
-                        MessageBox.Show($"Неверный формат GUID для DeliveryTypeUUID", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    // Используем уже имеющиеся статические поля для Accepted и Preparing
-                    // Guid acceptedGuid = AcceptedStatusUUID;
-                    // Guid preparingGuid = PreparingStatusUUID;
-                    // Guid readyForPickupCurrentGuid = ReadyForPickupStatusUUID; // Для сравнения текущего статуса
-                    // Guid awaitingCourierCurrentGuid = AwaitingCourierStatusUUID; // Для сравнения текущего статуса
-
-                    Guid targetStatusGuid = Guid.Empty; // Инициализируем
-                    string targetStatusName = string.Empty; // Инициализируем
-
-                    // --- Логика определения следующего статуса ---
-
-                    // 1. Если текущий статус "Готов к выдаче" -> меняем на "Выполнен" (Кнопка "Заказ получен")
-                    if (orderToComplete.IdСтатуса == ReadyForPickupStatusUUID)
-                    {
-                        targetStatusGuid = completedGuid;
-                        targetStatusName = "Выполнен";
-                    }
-                    // 2. Если текущий статус "Ожидает курьера" -> меняем на "В пути" (Кнопка "Передан курьеру")
-                    else if (orderToComplete.IdСтатуса == AwaitingCourierStatusUUID)
-                    {
-                        targetStatusGuid = inTransitGuid;
-                        targetStatusName = "В пути";
-                    }
-                    // 3. Если текущий статус "Принят" ИЛИ "Готовится" -> проверяем тип заказа (Кнопка "Готово")
-                    else if (orderToComplete.IdСтатуса == AcceptedStatusUUID || orderToComplete.IdСтатуса == PreparingStatusUUID)
-                    {
-                        // --- Вот она, проверка типа заказа! ---
-                        if (orderToComplete.IdТипа == deliveryGuid) // Если тип = Доставка
-                        {
-                            targetStatusGuid = awaitingCourierGuid; // Меняем на "Ожидает курьера"
-                            targetStatusName = "Ожидает курьера";
-                        }
-                        else // Если тип НЕ Доставка (Самовывоз и т.д.)
-                        {
-                            targetStatusGuid = readyForPickupGuid; // Меняем на "Готов к выдаче"
-                            targetStatusName = "Готов к выдаче";
-                        }
-                    }
-                    else // Обработка других статусов, если они вдруг попадут в этот список
-                    {
-                        // Найдем имя текущего статуса для сообщения
-                        _statusNamesDictionary.TryGetValue(orderToComplete.IdСтатуса, out string currentStatusName);
-                        MessageBox.Show($"Для заказа со статусом '{currentStatusName ?? orderToComplete.IdСтатуса.ToString()}' действие не определено в этой логике.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
-                        return; // Ничего не делаем
-                    }
-
-                    // --- Если целевой статус определен, обновляем заказ ---
-                    if (targetStatusGuid != Guid.Empty)
-                    {
-                        var updateResponse = await App.SupabaseClient
-                           .From<Заказы>()
-                           .Where(x => x.Id == orderId)
-                           .Set(x => x.IdСтатуса, targetStatusGuid)
-                           .Update();
-
-                        if (updateResponse.ResponseMessage.IsSuccessStatusCode)
-                        {
-                            MessageBox.Show($"Статус заказа успешно обновлен на '{targetStatusName}'.");
-                            // Обновляем список текущих заказов, чтобы убрать/обновить карточку
-                            await LoadCurrentOrdersAsync();
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Ошибка при обновлении статуса заказа: {updateResponse.ResponseMessage?.ReasonPhrase ?? "Неизвестная ошибка"}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                    // Если targetStatusGuid остался пустым (хотя по логике выше этого не должно быть, кроме информационного сообщения), ничего не делаем
+                    MessageBox.Show($"Ошибка чтения GUID статусов/типов из конфигурации.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Dispatcher.Invoke(() => button.IsEnabled = true);
+                    return;
                 }
-                catch (Exception ex)
+
+                Guid targetStatusGuid = Guid.Empty;
+                string targetStatusName = string.Empty;
+
+                if (currentStatusGuid == ReadyForPickupStatusUUID) { targetStatusGuid = completedGuid; targetStatusName = "Выполнен"; }
+                else if (currentStatusGuid == AwaitingCourierStatusUUID) { targetStatusGuid = inTransitGuid; targetStatusName = "В пути"; }
+                else if (currentStatusGuid == AcceptedStatusUUID || currentStatusGuid == PreparingStatusUUID)
                 {
-                    MessageBox.Show($"Произошла ошибка при обработке действия с заказом: {ex.Message}", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (orderTypeGuid == DeliveryTypeUUID) { targetStatusGuid = awaitingCourierGuid; targetStatusName = "Ожидает курьера"; }
+                    else { targetStatusGuid = readyForPickupGuid; targetStatusName = "Готов к выдаче"; }
+                }
+                else
+                {
+                    _statusNamesDictionary.TryGetValue(currentStatusGuid, out string currentStatusName);
+                    MessageBox.Show($"Для заказа со статусом '{currentStatusName ?? currentStatusGuid.ToString()}' действие не определено.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Dispatcher.Invoke(() => button.IsEnabled = true);
+                    return;
+                }
+
+                if (targetStatusGuid != Guid.Empty)
+                {
+                    var updateResponse = await App.SupabaseClient
+                       .From<Заказы>()
+                       .Where(x => x.Id == orderId)
+                       .Set(x => x.IdСтатуса, targetStatusGuid)
+                       .Update();
+
+                    if (_cancellationTokenSource.Token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    if (updateResponse.ResponseMessage.IsSuccessStatusCode)
+                    {
+
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Ошибка при обновлении статуса заказа: {updateResponse.ResponseMessage?.ReasonPhrase ?? "Неизвестная ошибка"}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Произошла ошибка при обработке действия с заказом: {ex.Message}", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Dispatcher.Invoke(() => button.IsEnabled = true);
+            }
         }
+
         private async void CompleteOrderButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is Guid orderId)
             {
                 try
                 {
-                    // Получаем ID типа заказа "Доставка" из App.config
                     string deliveryTypeUUID = ConfigurationManager.AppSettings["DeliveryTypeUUID"];
                     if (!Guid.TryParse(deliveryTypeUUID, out Guid deliveryGuid))
                     {
@@ -375,7 +763,6 @@ namespace ChickenAndPoint
                         return;
                     }
 
-                    // Получаем ID статусов из App.config
                     string awaitingCourierStatusUUID = ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"];
                     string readyForPickupStatusUUID = ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"];
 
@@ -390,7 +777,7 @@ namespace ChickenAndPoint
                         MessageBox.Show($"Неверный формат GUID для ReadyForPickupStatusUUID: {readyForPickupStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    //Находим заказ в коллекции
+
                     CurrentOrderViewModel orderToComplete = CurrentOrders.FirstOrDefault(x => x.Id == orderId);
                     if (orderToComplete == null)
                     {
@@ -400,7 +787,6 @@ namespace ChickenAndPoint
                     Guid targetStatusGuid = (orderToComplete.IdТипа == deliveryGuid) ? awaitingCourierGuid : readyForPickupGuid;
                     string targetStatusName = (orderToComplete.IdТипа == deliveryGuid) ? "Ожидает курьера" : "Готов к выдаче";
 
-                    // Обновляем статус заказа
                     var update = new Заказы
                     {
                         Id = orderId,
@@ -415,7 +801,6 @@ namespace ChickenAndPoint
 
                     if (updateResponse.ResponseMessage.IsSuccessStatusCode)
                     {
-                        MessageBox.Show($"Статус заказа успешно обновлен на '{targetStatusName}'.");
                         await LoadCurrentOrdersAsync();
                     }
                     else
@@ -431,7 +816,7 @@ namespace ChickenAndPoint
         }
         private async Task LoadCurrentOrdersAsync()
         {
-            ObservableCollection<CurrentOrderViewModel> targetCollection = new ObservableCollection<CurrentOrderViewModel>();
+            List<CurrentOrderViewModel> freshViewModels = new List<CurrentOrderViewModel>();
 
             try
             {
@@ -441,123 +826,146 @@ namespace ChickenAndPoint
                     return;
                 }
 
-                // Получение ID статусов из конфигурации
-                string acceptedStatusUUID = ConfigurationManager.AppSettings["AcceptedStatusUUID"];
-                string preparingStatusUUID = ConfigurationManager.AppSettings["PreparingStatusUUID"];
-                string readyForPickupStatusUUID = ConfigurationManager.AppSettings["ReadyForPickupStatusUUID"];
-                string awaitingCourierStatusUUID = ConfigurationManager.AppSettings["AwaitingCourierStatusUUID"];
-
-                List<Guid> statusUUIDs = new List<Guid>();
-
-                if (Guid.TryParse(acceptedStatusUUID, out Guid acceptedGuid)) statusUUIDs.Add(acceptedGuid);
-                else MessageBox.Show($"Неверный формат GUID для AcceptedStatusUUID: {acceptedStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                if (Guid.TryParse(preparingStatusUUID, out Guid preparingGuid)) statusUUIDs.Add(preparingGuid);
-                else MessageBox.Show($"Неверный формат GUID для PreparingStatusUUID: {preparingStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                if (Guid.TryParse(readyForPickupStatusUUID, out Guid readyGuid)) statusUUIDs.Add(readyGuid); // Добавляем новый статус
-                else MessageBox.Show($"Неверный формат GUID для ReadyForPickupStatusUUID: {readyForPickupStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                if (Guid.TryParse(awaitingCourierStatusUUID, out Guid awaitingCourierGuid)) statusUUIDs.Add(awaitingCourierGuid); // Добавляем в список
-                else MessageBox.Show($"Неверный формат GUID для AwaitingCourierStatusUUID: {awaitingCourierStatusUUID}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                if (statusUUIDs.Count == 0)
+                if (_currentOrderStatusGuids.Count == 0)
                 {
-                    MessageBox.Show($"Не удалось определить UUID статусов из конфигурации.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var ordersResponse = await App.SupabaseClient
-                    .From<Заказы>()
-                    .Select("*")
-                    .Get();
-
-                if (ordersResponse?.Models != null)
+                if (_allDishesDictionaryCache == null || !_allDishesDictionaryCache.Any() ||
+                    _allCategoriesDictionaryCache == null || !_allCategoriesDictionaryCache.Any() ||
+                    _typeNamesDictionary == null || !_typeNamesDictionary.Any())
                 {
-                    var filteredOrders = ordersResponse.Models
-                        .Where(order => statusUUIDs.Contains(order.IdСтатуса))
-                        .OrderBy(o => o.ВремяСоздания)
-                        .ToList();
-
-                    if (!filteredOrders.Any())
+                    await CacheDishesAndCategoriesAsync();
+                    if (_allDishesDictionaryCache == null || !_allDishesDictionaryCache.Any() ||
+                        _allCategoriesDictionaryCache == null || !_allCategoriesDictionaryCache.Any() ||
+                        _typeNamesDictionary == null || !_typeNamesDictionary.Any())
                     {
-                        return;
+                        MessageBox.Show("Ошибка загрузки справочников. Данные могут отображаться не полностью.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
+                }
 
-                    var dishesResponse = await App.SupabaseClient.From<Блюда>().Select("*").Get();
-                    var allDishesDictionary = dishesResponse?.Models?.ToDictionary(d => d.Id, d => d);
+                var ordersTask = App.SupabaseClient.From<Заказы>().Select("*").Get(_cancellationTokenSource.Token);
+                var itemsTask = App.SupabaseClient.From<СоставЗаказа>().Select("*").Get(_cancellationTokenSource.Token);
 
-                    var categoriesResponse = await App.SupabaseClient.From<Категории>().Select("*").Get();
-                    var allCategoriesDictionary = categoriesResponse?.Models?.ToDictionary(category => category.Id, category => category);
+                await Task.WhenAll(ordersTask, itemsTask);
 
-                    var allOrderItemsResponse = await App.SupabaseClient
-                        .From<СоставЗаказа>()
-                        .Select("*")
-                        .Get();
+                if (_cancellationTokenSource.Token.IsCancellationRequested) { return; }
 
-                    Dictionary<Guid, List<СоставЗаказа>> orderItemsByOrderId = new Dictionary<Guid, List<СоставЗаказа>>();
-                    if (allOrderItemsResponse?.Models != null)
+                var ordersResponse = ordersTask.Result;
+                var allOrderItemsResponse = itemsTask.Result;
+
+                if (ordersResponse?.Models == null) { return; }
+                if (!ordersResponse.Models.Any()) { await Dispatcher.InvokeAsync(() => _currentOrders.Clear()); return; }
+
+                var filteredAndSortedOrders = ordersResponse.Models
+                    .Where(order => _currentOrderStatusGuids.Contains(order.IdСтатуса))
+                    .OrderBy(o => o.ВремяСоздания)
+                    .ToList();
+
+                Dictionary<Guid, List<СоставЗаказа>> orderItemsByOrderId = new Dictionary<Guid, List<СоставЗаказа>>();
+                if (allOrderItemsResponse?.Models != null)
+                {
+                    orderItemsByOrderId = allOrderItemsResponse.Models
+                        .GroupBy(item => item.IdЗаказа)
+                        .ToDictionary(group => group.Key, group => group.ToList());
+                }
+
+                foreach (var order in filteredAndSortedOrders)
+                {
+                    var freshViewModel = new CurrentOrderViewModel
                     {
-                        orderItemsByOrderId = allOrderItemsResponse.Models
-                            .GroupBy(item => item.IdЗаказа)
-                            .ToDictionary(group => group.Key, group => group.ToList());
-                    }
+                        Id = order.Id,
+                        НомерЗаказа = order.НомерЗаказа ?? "Нет номера",
+                        ВремяСоздания = order.ВремяСоздания,
+                        ВремяОбновления = order.ВремяОбновления,
+                        IdТипа = order.IdТипа,
+                        IdСтатуса = order.IdСтатуса,
+                        НазваниеТипа = _typeNamesDictionary.TryGetValue(order.IdТипа, out string typeName) ? typeName : "Тип (?)"
+                    };
 
-                    foreach (var order in filteredOrders)
+                    if (orderItemsByOrderId.TryGetValue(order.Id, out List<СоставЗаказа> currentOrderItemsList))
                     {
-                        List<OrderItemDisplayViewModel> orderItems = new List<OrderItemDisplayViewModel>();
-
-                        if (orderItemsByOrderId.TryGetValue(order.Id, out List<СоставЗаказа> orderItemsList))
+                        foreach (var item in currentOrderItemsList)
                         {
-                            foreach (var item in orderItemsList)
+                            string dishName = "Блюдо (?)"; Guid categoryId = Guid.Empty; string iconUrl = null;
+                            if (_allDishesDictionaryCache.TryGetValue(item.IdБлюда, out Блюда dish))
                             {
-                                string dishName = "Блюдо (?)";
-                                Guid categoryId = Guid.Empty;
-                                string iconUrl = null;
-
-                                if (allDishesDictionary != null && allDishesDictionary.TryGetValue(item.IdБлюда, out Блюда dish))
-                                {
-                                    dishName = dish.НазваниеБлюда ?? dishName;
-                                    categoryId = dish.IdКатегории;
-
-                                    if (allCategoriesDictionary != null && allCategoriesDictionary.TryGetValue(dish.IdКатегории, out Категории category))
-                                    {
-                                        iconUrl = category.СсылкаНаИконку;
-                                    }
-                                }
-
-                                orderItems.Add(new OrderItemDisplayViewModel
-                                {
-                                    НазваниеБлюда = dishName,
-                                    Количество = item.Количество,
-                                    ЦенаНаМоментЗаказа = item.ЦенаНаМоментЗаказа,
-                                    IdКатегории = categoryId,
-                                    СсылкаНаИконкуКатегории = iconUrl //НОВОЕ
-                                });
+                                dishName = dish.НазваниеБлюда ?? dishName; categoryId = dish.IdКатегории;
+                                if (_allCategoriesDictionaryCache.TryGetValue(categoryId, out Категории category)) { iconUrl = category.СсылкаНаИконку; }
                             }
-                        }
-
-                        if (orderItems.Any())
-                        {
-                            targetCollection.Add(new CurrentOrderViewModel
+                            freshViewModel.Items.Add(new OrderItemDisplayViewModel
                             {
-                                Id = order.Id,
-                                НомерЗаказа = order.НомерЗаказа ?? "Нет номера",
-                                Items = orderItems,
-                                ВремяСоздания = order.ВремяСоздания,
-                                IdТипа = order.IdТипа,
-                                IdСтатуса = order.IdСтатуса
+                                НазваниеБлюда = dishName,
+                                Количество = item.Количество,
+                                ЦенаНаМоментЗаказа = item.ЦенаНаМоментЗаказа,
+                                IdКатегории = categoryId,
+                                СсылкаНаИконкуКатегории = iconUrl
                             });
                         }
                     }
-                    CurrentOrders = targetCollection;
-                    CurrentOrdersItemsControl.ItemsSource = CurrentOrders;
+
+                    if (freshViewModel.Items.Any())
+                    {
+                        freshViewModels.Add(freshViewModel);
+                    }
                 }
+
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    var currentOrderIds = new HashSet<Guid>(_currentOrders.Select(vm => vm.Id));
+                    var freshOrderIds = new HashSet<Guid>(freshViewModels.Select(vm => vm.Id));
+
+                    var ordersToRemove = _currentOrders.Where(vm => !freshOrderIds.Contains(vm.Id)).ToList();
+                    foreach (var vmToRemove in ordersToRemove)
+                    {
+                        _currentOrders.Remove(vmToRemove);
+                    }
+
+                    int insertIndex = 0;
+                    foreach (var freshVm in freshViewModels)
+                    {
+                        var existingVm = _currentOrders.FirstOrDefault(vm => vm.Id == freshVm.Id);
+
+                        if (existingVm != null)
+                        {
+                            bool needsUpdate = false;
+                            if (existingVm.IdСтатуса != freshVm.IdСтатуса) { existingVm.IdСтатуса = freshVm.IdСтатуса; needsUpdate = true; }
+                            if (existingVm.ВремяОбновления != freshVm.ВремяОбновления) { existingVm.ВремяОбновления = freshVm.ВремяОбновления; needsUpdate = true; }
+                            if (existingVm.НомерЗаказа != freshVm.НомерЗаказа) { existingVm.НомерЗаказа = freshVm.НомерЗаказа; needsUpdate = true; }
+
+                            existingVm.UpdateItems(freshVm.Items);
+
+                            int currentIndex = _currentOrders.IndexOf(existingVm);
+                            if (currentIndex != insertIndex && currentIndex >= 0)
+                            {
+                                _currentOrders.Move(currentIndex, insertIndex);
+                            }
+                            insertIndex++;
+                        }
+                        else
+                        {
+                            if (insertIndex >= _currentOrders.Count)
+                            {
+                                _currentOrders.Add(freshVm);
+                            }
+                            else
+                            {
+                                _currentOrders.Insert(insertIndex, freshVm);
+                            }
+                            insertIndex++;
+                        }
+                    }
+                });
+
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки текущих заказов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка полной загрузки текущих заказов:\n{ex.Message}", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                await Dispatcher.InvokeAsync(() => _currentOrders.Clear());
             }
+            finally { }
+        
         }
 
         private void ToggleFullScreenButton_Click(object sender, RoutedEventArgs e)
@@ -827,7 +1235,7 @@ namespace ChickenAndPoint
         {
             if (SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
             {
-                SearchTextBox.Text = string.Empty; // TextChanged вызовет ApplyFilters
+                SearchTextBox.Text = string.Empty;
             }
         }
 

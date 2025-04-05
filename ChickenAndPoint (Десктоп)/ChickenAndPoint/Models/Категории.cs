@@ -14,6 +14,6 @@ namespace ChickenAndPoint.Models
         public string НазваниеКатегории { get; set; }
 
         [Column("ссылка_на_иконку")]
-        public string СсылкаНаИконку { get; set; } // НОВОЕ
+        public string СсылкаНаИконку { get; set; }
     }
 }
