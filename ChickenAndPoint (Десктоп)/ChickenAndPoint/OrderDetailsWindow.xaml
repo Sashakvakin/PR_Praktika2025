@@ -22,7 +22,7 @@
     <!-- Оборачиваем Grid в Border для окантовки и тени -->
     <Border BorderBrush="{StaticResource OrangeAccentBrush}"
             BorderThickness="2"
-            CornerRadius="8"
+            CornerRadius="5"
             Background="{DynamicResource MaterialDesignPaper}">
         <Border.Effect>
             <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="5" Direction="270" Opacity="0.3"/>

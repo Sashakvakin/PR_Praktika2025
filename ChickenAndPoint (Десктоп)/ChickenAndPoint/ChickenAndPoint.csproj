@@ -148,6 +148,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AddCategoryFoodWindow.xaml.cs">
+      <DependentUpon>AddCategoryFoodWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AddFoodWindow.xaml.cs">
+      <DependentUpon>AddFoodWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AddNewUser.xaml.cs">
+      <DependentUpon>AddNewUser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AdminMainWindow.xaml.cs">
+      <DependentUpon>AdminMainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CategoryIconSelectorWindow.xaml.cs">
+      <DependentUpon>CategoryIconSelectorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditFoodWindow.xaml.cs">
+      <DependentUpon>EditFoodWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditUserInfo.xaml.cs">
+      <DependentUpon>EditUserInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FoodImageWindow.xaml.cs">
+      <DependentUpon>FoodImageWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\Блюда.cs" />
     <Compile Include="Models\Заказы.cs" />
     <Compile Include="Models\Категории.cs" />
@@ -160,6 +184,38 @@
     <Compile Include="SotrydnikMainWindow.xaml.cs">
       <DependentUpon>SotrydnikMainWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="AddCategoryFoodWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AddFoodWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AddNewUser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AdminMainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CategoryIconSelectorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EditFoodWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EditUserInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FoodImageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

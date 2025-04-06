@@ -1,0 +1,333 @@
+﻿<Window x:Class="ChickenAndPoint.Admin.AdminMainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChickenAndPoint.Admin"
+        xmlns:models="clr-namespace:ChickenAndPoint.Models"
+        xmlns:converters="clr-namespace:ChickenAndPoint"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Курочка и точка - Администратор" Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="14"
+        FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
+
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="AdminMenuButtonStyle" BasedOn="{StaticResource MaterialDesignFlatButton}">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Margin" Value="8,4,8,4"/>
+            <Setter Property="materialDesign:RippleAssist.Feedback" Value="{DynamicResource MaterialDesignFlatButtonRipple}"/>
+        </Style>
+        <Style TargetType="materialDesign:PackIcon" x:Key="AdminMenuIconStyle">
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="AdminMenuTextStyle">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style TargetType="DataGrid" BasedOn="{StaticResource MaterialDesignDataGrid}">
+            <Setter Property="materialDesign:DataGridAssist.CellPadding" Value="13 8 8 8"/>
+            <Setter Property="materialDesign:DataGridAssist.ColumnHeaderPadding" Value="8"/>
+            <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth1"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+
+        <converters:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
+
+        <Style TargetType="materialDesign:Card" x:Key="DishCardStyle">
+            <Setter Property="Width" Value="230"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="UniformCornerRadius" Value="8"/>
+            <Setter Property="materialDesign:ShadowAssist.ShadowDepth" Value="Depth2"/>
+        </Style>
+
+        <Style TargetType="Grid" x:Key="UnavailableDishOverlay">
+            <Setter Property="Background" Value="#80FFFFFF"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Доступно}" Value="False">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="UnavailableDishText">
+            <Setter Property="Text" Value="НЕДОСТУПНО"/>
+            <Setter Property="Foreground" Value="Red"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Доступно}" Value="False">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{DynamicResource PrimaryHueMidBrush}" CornerRadius="0,5,5,0" >
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top">
+                    <Button x:Name="ProfileButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="Профиль" Margin="0 5 0 5">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="AccountCircleOutline" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Профиль" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Border Height="2" Margin="10,0,10,0" Background="White" Opacity="0.7" CornerRadius="5" SnapsToDevicePixels="True"/>
+
+                    <Button x:Name="UsersButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="Пользователи" Margin="0 0 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="AccountGroupOutline" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Пользователи" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="DishesButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="Блюда" Margin="0 -5 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Restaurant" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Блюда" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="OrdersButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="Заказы" Margin="0 -5 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ClipboardListOutline" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Заказы" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Border Height="2" Margin="10,0,10,0" Background="White" Opacity="0.7" CornerRadius="5" SnapsToDevicePixels="True"/>
+
+                    <Button x:Name="OrderTypesButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="ТипыЗаказов" Margin="0 0 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FormatListBulletedType" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Типы заказов" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="OrderStatusesButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="СтатусыЗаказов" Margin="0 -5 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ProgressCheck" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Статусы заказов" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <Button x:Name="LogoutButton" Style="{StaticResource AdminMenuButtonStyle}" Click="LogoutButton_Click" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Margin="8,15,8,15">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="LogoutVariant" Style="{StaticResource AdminMenuIconStyle}"/>
+                        <TextBlock Text="Выход" Style="{StaticResource AdminMenuTextStyle}"/>
+                    </StackPanel>
+                </Button>
+            </DockPanel>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid x:Name="ProfilePanel" Visibility="Collapsed" Margin="20">
+                <materialDesign:Card Padding="20" Margin="10" UniformCornerRadius="10" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="Профиль Администратора" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="0,0,0,15" FontSize="22"/>
+                        <TextBlock Text="Полное имя:" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock x:Name="AdminFullNameTextBlock" Text="-" Margin="0,0,0,10" FontSize="16"/>
+                        <TextBlock Text="Номер телефона:" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock x:Name="AdminPhoneTextBlock" Text="-" Margin="0,0,0,10" FontSize="16"/>
+                    </StackPanel>
+                </materialDesign:Card>
+            </Grid>
+
+            <Grid x:Name="UsersPanel" Visibility="Collapsed" Margin="15">
+                <StackPanel>
+                    <TextBlock Text="Управление пользователями" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10,5,10,15"/>
+                    <TextBlock x:Name="UsersLoadingStatus" Text="Загрузка..." HorizontalAlignment="Center" Margin="0 50 0 0" Visibility="Collapsed" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+                    <materialDesign:Card Padding="0" Margin="10,0,10,10" UniformCornerRadius="8">
+                        <DataGrid x:Name="UsersDataGrid" MaxHeight="480" SelectionChanged="UsersDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <materialDesign:DataGridTextColumn Header="Полное имя" Binding="{Binding ПолноеИмя}" Width="1.5*"/>
+                                <materialDesign:DataGridTextColumn Header="Почта" Binding="{Binding Почта}" Width="2*"/>
+                                <materialDesign:DataGridTextColumn Header="Телефон" Binding="{Binding НомерТелефона}" Width="1*"/>
+                                <materialDesign:DataGridTextColumn Header="Роль" Binding="{Binding НазваниеРоли}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </materialDesign:Card>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="AddUserButton" Content="Добавить нового" Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Left" Margin="10,10,0,0" Width="180" Click="AddUserButton_Click"/>
+                        <Button x:Name="EditUserButton" Content="Изменить выбранного" Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Left" Margin="10,10,0,0" Width="200" IsEnabled="False" Click="EditUserButton_Click"/>
+                        <Button x:Name="DeleteUserButton" Content="Удалить выбранного"
+                                 Style="{StaticResource MaterialDesignRaisedButton}"
+                                 Background="IndianRed" BorderBrush="IndianRed" Foreground="White"
+                                 HorizontalAlignment="Left" Margin="10,10,0,0" Width="200"
+                                 IsEnabled="False" Click="DeleteUserButton_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <Grid x:Name="DishesPanel" Visibility="Collapsed" Margin="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Управление блюдами" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10,5,10,10"/>
+
+                    <TextBlock Grid.Row="1" x:Name="DishesLoadingStatus" Text="Загрузка..." HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 50 0 0" Visibility="Collapsed" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
+
+                    <ScrollViewer Grid.Row="1" x:Name="DishesScrollViewer"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Margin="0,0,0,0"
+                      Visibility="{Binding Visibility, ElementName=DishesItemsControl}">
+                        <ItemsControl x:Name="DishesItemsControl" Grid.IsSharedSizeScope="True" Visibility="Collapsed">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type local:DishAdminViewModel}">
+                                    <materialDesign:Card>
+                                        <materialDesign:Card.Style>
+                                            <Style TargetType="materialDesign:Card" BasedOn="{StaticResource DishCardStyle}">
+                                                <Setter Property="Opacity" Value="1.0"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Доступно}" Value="False">
+                                                        <Setter Property="Opacity" Value="0.65"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </materialDesign:Card.Style>
+                                        <Grid>
+                                            <StackPanel>
+
+                                                <Grid Width="210" Height="200" Margin="0 0 0 8" HorizontalAlignment="Center">
+
+                                                    <Border x:Name="ImageBorder" CornerRadius="5">
+                                                        <Border.Background>
+                                                            <ImageBrush ImageSource="{Binding СсылкаНаИзображение, Converter={StaticResource ImageUrlConverter}, TargetNullValue={x:Null}}" Stretch="UniformToFill"/>
+                                                        </Border.Background>
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding СсылкаНаИзображение}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding СсылкаНаИзображение}" Value="">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <Border.ToolTip>
+                                                            <TextBlock Text="{Binding НазваниеБлюда}"/>
+                                                        </Border.ToolTip>
+                                                    </Border>
+
+                                                    <materialDesign:PackIcon x:Name="PlaceholderIcon" Kind="ImageOffOutline" Width="50" Height="50" Foreground="{DynamicResource MaterialDesignBodyLight}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon.Style>
+                                                            <Style TargetType="materialDesign:PackIcon">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding СсылкаНаИзображение}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding СсылкаНаИзображение}" Value="">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </materialDesign:PackIcon.Style>
+                                                    </materialDesign:PackIcon>
+
+                                                    <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#AA000000" CornerRadius="3" Margin="5">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Доступно}" Value="False">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="Недоступно" Foreground="White" FontSize="10" FontWeight="Medium" Padding="5 2"/>
+                                                    </Border>
+                                                </Grid>
+
+                                                <TextBlock Text="{Binding НазваниеБлюда}" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap" MaxHeight="40" Margin="0,0,0,4"/>
+                                                <TextBlock Text="{Binding Описание}" FontSize="12" Foreground="{DynamicResource MaterialDesignBodyLight}" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" Height="auto" MaxHeight="45" Margin="0,0,0,5"/>
+                                                <Grid Margin="0,5,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Цена, StringFormat='{}{0:N2} ₽'}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding НазваниеКатегории}" FontSize="12" Foreground="{DynamicResource PrimaryHueMidBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0,0,0" ToolTip="Категория"/>
+                                                </Grid>
+
+                                                <Button Content="Изменить"
+                                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Margin="0,0,0,0"
+                                                    CommandParameter="{Binding}" 
+                                                    Click="EditDishButton_Click"/>
+
+                                            </StackPanel>
+                                        </Grid>
+                                    </materialDesign:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+                <Button Grid.Row="2" x:Name="AddDishButton"
+                Style="{StaticResource MaterialDesignFloatingActionButton}"
+                    HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,20,20"
+                    ToolTip="Добавить новое блюдо"
+                    Click="AddDishButton_Click">
+                    <materialDesign:PackIcon Kind="Plus" Width="30" Height="30" />
+                </Button>
+            </Grid>
+
+            <Grid x:Name="OrdersPanel" Visibility="Collapsed" Margin="20">
+                <TextBlock Text="Раздел: Заказы" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Grid x:Name="OrderTypesPanel" Visibility="Collapsed" Margin="20">
+                <TextBlock Text="Раздел: Типы заказов" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+
+            <Grid x:Name="OrderStatusesPanel" Visibility="Collapsed" Margin="20">
+                <TextBlock Text="Раздел: Статусы заказов" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

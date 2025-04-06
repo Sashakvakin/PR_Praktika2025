@@ -1,4 +1,5 @@
-﻿using Postgrest.Models;
+﻿// Файл: Models/Пользователь.cs
+using Postgrest.Models;
 using Postgrest.Attributes;
 using System;
 
@@ -7,7 +8,7 @@ namespace ChickenAndPoint.Models
     [Table("Пользователи")]
     public class Пользователь : BaseModel
     {
-        [PrimaryKey("id", false)]
+        [PrimaryKey("id")]
         public Guid Id { get; set; }
 
         [Column("id_роли")]
@@ -18,5 +19,9 @@ namespace ChickenAndPoint.Models
 
         [Column("номер_телефона")]
         public string НомерТелефона { get; set; }
+
+        [Column("почта")]
+        public string Почта { get; set; }
+
     }
 }

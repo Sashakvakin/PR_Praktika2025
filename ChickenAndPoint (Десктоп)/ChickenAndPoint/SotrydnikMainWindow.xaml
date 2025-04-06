@@ -7,7 +7,7 @@
         xmlns:viewModels="clr-namespace:ChickenAndPoint"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Курочка и точка - Сотрудник" Height="650" Width="1050"
+        Title="Курочка и точка - Сотрудник" Height="650" Width="1100"
         WindowStartupLocation="CenterScreen"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
@@ -184,7 +184,7 @@
                     <Button x:Name="ToggleFullScreenButton"
                         Style="{StaticResource MaterialDesignFlatButton}"
                         Foreground="{DynamicResource PrimaryHueMidForegroundBrush}"
-                        Margin="20,0,0,0"
+                        Margin="10,0,0,0"
                         Click="ToggleFullScreenButton_Click"
                         ToolTip="Во весь экран / Свернуть"
                         VerticalAlignment="Center">
@@ -208,9 +208,8 @@
                                 <Border Margin="8"
                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                         CornerRadius="8">
-                                    <!-- Убран MaxWidth -->
                                     <materialDesign:Card x:Name="OrderCard"
-                                             Width="Auto" MinWidth="200"
+                                             Width="Auto" MinWidth="190"
                                              Height="Auto"
                                              Padding="15"
                                              UniformCornerRadius="8">
@@ -238,7 +237,7 @@
                                                   Tag="{Binding Id}"
                                                   HorizontalAlignment="Stretch"
                                                   DockPanel.Dock="Bottom"
-                                                  Margin="0,15,0,0"
+                                                  Margin="2,5,2,0"
                                                   Content="{Binding IdСтатуса, Converter={StaticResource StatusConverter}}">
                                                 <Button.Style>
                                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
@@ -257,7 +256,7 @@
                                             </Button>
 
                                             <StackPanel>
-                                                <Grid Margin="0,0,0,5">
+                                                <Grid Margin="0,0,0,0">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
@@ -309,7 +308,7 @@
                                                     </TextBlock.FontSize>
                                                 </TextBlock>
 
-                                                <Separator Height="1" Background="{DynamicResource MaterialDesignDivider}" Margin="0,5,0,10"/>
+                                                <Separator Height="1" Background="{DynamicResource MaterialDesignDivider}" Margin="0,5,0,5"/>
 
                                                 <ItemsControl ItemsSource="{Binding Items}" Margin="0,0,0,5">
                                                     <ItemsControl.ItemsPanel>
@@ -340,7 +339,6 @@
                                                                               ConverterParameter="24"/>
                                                                     </Image.Height>
                                                                 </Image>
-                                                                <!-- ====> ИЗМЕНЕНИЯ ЗДЕСЬ <==== -->
                                                                 <TextBlock Grid.Column="1" Foreground="Black"
                                                                     Text="{Binding НазваниеБлюда}"
                                                                     VerticalAlignment="Center"
@@ -349,8 +347,6 @@
                                                                     TextWrapping="NoWrap"
                                                                     TextTrimming="CharacterEllipsis"
                                                                     ToolTip="{Binding НазваниеБлюда}"/>
-                                                                <!-- Добавлена подсказка -->
-                                                                <!-- ====> КОНЕЦ ИЗМЕНЕНИЙ <==== -->
                                                                 <TextBlock Grid.Column="2"
                                                                     Text="{Binding Количество, StringFormat='x {0}'}"
                                                                     Margin="0,0,0,0"

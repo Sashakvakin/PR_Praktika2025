@@ -8,6 +8,7 @@ using Supabase.Gotrue;
 using Supabase.Gotrue.Exceptions;
 using Postgrest.Exceptions;
 using static Postgrest.Constants;
+using ChickenAndPoint.Admin;
 
 namespace ChickenAndPoint
 {
@@ -18,7 +19,7 @@ namespace ChickenAndPoint
         public LoginWindow()
         {
             InitializeComponent();
-            EmailTextBox.Text = "sotrydnik@gmail.com";
+            EmailTextBox.Text = "admin@gmail.com";
             PasswordTextBox.Password = "111111";
         }
 
@@ -141,14 +142,13 @@ namespace ChickenAndPoint
             switch (roleName?.ToLower())
             {
                 case "администратор":
-                    MessageBox.Show("Окно для администратора еще не создано. Открывается стандартное окно сотрудника.");
                     if (userToPass != null)
                     {
-                        mainWindow = new SotrydnikMainWindow(userToPass);
+                        mainWindow = new AdminMainWindow(userToPass);
                     }
                     else
                     {
-                        MessageBox.Show("Не удалось получить данные пользователя для открытия окна.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Не удалось получить данные пользователя для открытия окна администратора.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     break;
@@ -159,7 +159,7 @@ namespace ChickenAndPoint
                     }
                     else
                     {
-                        MessageBox.Show("Не удалось получить данные пользователя для открытия окна.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Не удалось получить данные пользователя для открытия окна сотрудника.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
                     break;
@@ -171,6 +171,7 @@ namespace ChickenAndPoint
             if (mainWindow != null)
             {
                 mainWindow.Show();
+                this.Close();
             }
         }
     }

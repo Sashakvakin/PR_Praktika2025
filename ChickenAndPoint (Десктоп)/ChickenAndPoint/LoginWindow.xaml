@@ -20,31 +20,37 @@
                    Height="150"
                    Stretch="Uniform"
                    HorizontalAlignment="Center"
-                   Margin="0,0,0,10"/>
+                   Margin="0,0,0,5"/>
 
             <TextBlock Text="Курочка и точка"
                        Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                        HorizontalAlignment="Center"
-                       Margin="0,0,0,5"/>
+                       Margin="0,0,0,2"/>
 
             <TextBlock Text="Авторизация"
                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                        Foreground="{DynamicResource MaterialDesignBodyLight}"
                        HorizontalAlignment="Center"
-                       Margin="0,0,0,25"/>
+                       Margin="0,0,0,20"/>
 
-            <materialDesign:Card Padding="25" UniformCornerRadius="8" Width="320" >
+            <materialDesign:Card Padding="25" UniformCornerRadius="8" Width="320" Height="242" >
                 <StackPanel>
+                    <TextBox x:Name="test"
+                             Text="Пользователи: admin@gmail.com sotrydnik@gmail.com"
+                             Margin="0,0,0,0"
+                             Height="25"
+                             FontSize="10.5" Foreground="#FFB18707" FontStyle="Italic"/>
+                    
                     <TextBox x:Name="EmailTextBox"
                              materialDesign:HintAssist.Hint="Email"
                              Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                              materialDesign:TextFieldAssist.HasClearButton="True"
-                             Margin="0,0,0,20"/>
-
+                             Margin="0,0,0,15"/>
+                    
                     <PasswordBox x:Name="PasswordTextBox"
                                  materialDesign:HintAssist.Hint="Пароль"
                                  Style="{StaticResource MaterialDesignFloatingHintPasswordBox}"
-                                 Margin="0,0,0,25"/>
+                                 Margin="0,0,0,15"/>
 
                     <Button x:Name="LoginButton"
                             Content="ВОЙТИ"

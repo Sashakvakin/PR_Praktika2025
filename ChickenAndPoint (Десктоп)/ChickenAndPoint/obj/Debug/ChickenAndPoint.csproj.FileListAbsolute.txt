@@ -247,3 +247,19 @@ C:\Users\IIDom\Documents\GitHub\PR_Praktika2025\ChickenAndPoint (Десктоп)
 C:\Users\IIDom\Documents\GitHub\PR_Praktika2025\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenA.56D03873.Up2Date
 C:\Users\IIDom\Documents\GitHub\PR_Praktika2025\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.exe
 C:\Users\IIDom\Documents\GitHub\PR_Praktika2025\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\ChickenAndPoint.pdb
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AdminMainWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AdminMainWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\EditUserInfo.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\EditUserInfo.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AddNewUser.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AddNewUser.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\EditFoodWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\EditFoodWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\FoodImageWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\FoodImageWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AddFoodWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AddFoodWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AddCategoryFoodWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\AddCategoryFoodWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\CategoryIconSelectorWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\CategoryIconSelectorWindow.baml
