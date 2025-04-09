@@ -11,7 +11,14 @@ using Supabase.Gotrue;
 using Postgrest.Models;
 using Postgrest.Attributes;
 using System.Collections.ObjectModel;
-
+using System.Globalization;
+using ChickenAndPoint;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Media.Imaging;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Configuration;
 
 namespace ChickenAndPoint.Admin
 {
@@ -24,19 +31,175 @@ namespace ChickenAndPoint.Admin
         public Guid IdРоли { get; set; }
         public string Почта { get; set; }
     }
-
-    public class DishAdminViewModel
+    public class OrderDisplayViewModel
     {
+        public Guid Id { get; set; }
+        public string НомерЗаказа { get; set; }
+        public string ИмяКлиента { get; set; }
+        public string НазваниеСтатуса { get; set; }
+        public string НазваниеТипа { get; set; }
+        public string АдресДоставки { get; set; } 
+        public decimal? ИтоговаяСумма { get; set; }
+        public DateTimeOffset ВремяСоздания { get; set; }
+        public DateTimeOffset ВремяОбновления { get; set; }
+        public Guid IdСтатуса { get; set; }
+        public Guid IdТипа { get; set; }
+        public Guid IdКлиента { get; set; }
+    }
+
+    public class DishAdminViewModel : INotifyPropertyChanged
+    {
+        private static readonly Dictionary<string, BitmapImage> ImageCache = new Dictionary<string, BitmapImage>();
+        private static readonly object CacheLock = new object();
+        private static readonly HashSet<string> FailedUrls = new HashSet<string>();
+
+        private static readonly HttpClient httpClient = new HttpClient();
+
         public Guid Id { get; set; }
         public Guid IdКатегории { get; set; }
         public string НазваниеБлюда { get; set; }
         public string Описание { get; set; }
         public decimal Цена { get; set; }
-        public string СсылкаНаИзображение { get; set; }
+        private string _ссылкаНаИзображение;
+        public string СсылкаНаИзображение
+        {
+            get => _ссылкаНаИзображение;
+            set => SetProperty(ref _ссылкаНаИзображение, value);
+        }
         public bool Доступно { get; set; }
         public string НазваниеКатегории { get; set; }
-    }
 
+        private BitmapImage _dishImageSource;
+        public BitmapImage DishImageSource
+        {
+            get => _dishImageSource;
+            private set => SetProperty(ref _dishImageSource, value);
+        }
+
+        private bool _isLoadingImage;
+        public bool IsLoadingImage
+        {
+            get => _isLoadingImage;
+            private set => SetProperty(ref _isLoadingImage, value);
+        }
+
+        public async Task LoadImageAsync()
+        {
+            if (string.IsNullOrEmpty(this.СсылкаНаИзображение) || DishImageSource != null || IsLoadingImage)
+            {
+                return;
+            }
+
+            IsLoadingImage = true;
+
+            BitmapImage image = null;
+            bool foundInCache = false;
+
+            lock (CacheLock)
+            {
+                foundInCache = ImageCache.TryGetValue(this.СсылкаНаИзображение, out image);
+            }
+
+            if (foundInCache && image != null)
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() => DishImageSource = image);
+            }
+            else
+            {
+                byte[] imageData = await Task.Run(() => DownloadImageDataAsync(this.СсылкаНаИзображение));
+
+                if (imageData != null)
+                {
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        try
+                        {
+                            BitmapImage bitmap = new BitmapImage();
+                            using (var stream = new System.IO.MemoryStream(imageData))
+                            {
+                                bitmap.BeginInit();
+                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                bitmap.StreamSource = stream;
+                                bitmap.EndInit();
+                            }
+
+                            bitmap.Freeze();
+
+                            lock (CacheLock)
+                            {
+                                if (!ImageCache.ContainsKey(this.СсылкаНаИзображение))
+                                {
+                                    ImageCache.Add(this.СсылкаНаИзображение, bitmap);
+                                }
+                                else
+                                {
+                                    bitmap = ImageCache[this.СсылкаНаИзображение];
+                                }
+                            }
+                            DishImageSource = bitmap;
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    });
+                }
+            }
+
+            IsLoadingImage = false;
+        }
+
+        private async Task<byte[]> DownloadImageDataAsync(string url)
+        {
+            try
+            {
+                byte[] imageData = await httpClient.GetByteArrayAsync(url);
+                return imageData;
+            }
+            catch (HttpRequestException httpEx)
+            {
+                Application.Current?.Dispatcher.InvokeAsync(() => {
+                    if (!FailedUrls.Contains(url))
+                    {
+                        FailedUrls.Add(url);
+                    }
+                });
+                return null;
+            }
+            catch (Exception ex) 
+            {
+                 Application.Current?.Dispatcher.InvokeAsync(() => {
+                      if (!FailedUrls.Contains(url))
+                      {
+                          FailedUrls.Add(url);
+                      }
+                 });
+                return null;
+            }
+        }
+
+        public static void ClearImageCache()
+        {
+            lock (CacheLock)
+            {
+                ImageCache.Clear();
+                FailedUrls.Clear();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+            storage = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+    }
 
     public partial class AdminMainWindow : Window
     {
@@ -44,13 +207,61 @@ namespace ChickenAndPoint.Admin
         private Dictionary<Guid, string> _roleNamesCache = new Dictionary<Guid, string>();
         private Dictionary<Guid, string> _categoryNamesCache = new Dictionary<Guid, string>();
         private ObservableCollection<DishAdminViewModel> _dishViewModels = new ObservableCollection<DishAdminViewModel>();
+        private List<UserViewModel> _allLoadedUsers = new List<UserViewModel>();
+        private List<DishAdminViewModel> _allLoadedDishes = new List<DishAdminViewModel>();
+        private List<KeyValuePair<Guid?, string>> _categoryFilterSource = new List<KeyValuePair<Guid?, string>>();
 
+        private List<OrderDisplayViewModel> _allAdminOrders = new List<OrderDisplayViewModel>();
+        private Dictionary<Guid, string> _adminStatusNames = new Dictionary<Guid, string>();
+        private Dictionary<Guid, string> _adminTypeNames = new Dictionary<Guid, string>();
+        private List<KeyValuePair<Guid?, string>> _adminOrderStatusFilterSource = new List<KeyValuePair<Guid?, string>>();
+        private List<KeyValuePair<Guid?, string>> _adminOrderTypeFilterSource = new List<KeyValuePair<Guid?, string>>();
+        private Dictionary<Guid, string> _clientNamesCache = new Dictionary<Guid, string>();
+
+        public static readonly Guid DeliveryTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["DeliveryTypeUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid PickupTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["PickupTypeUUID"] ?? Guid.Empty.ToString());
+        public static readonly Guid PackagingPickupTypeUUID = Guid.Parse(ConfigurationManager.AppSettings["PackagingPickupTypeUUID"] ?? Guid.Empty.ToString());
+
+        private void UpdateDatePickersEnabledState()
+        {
+            bool enablePickers = !(AdminShowAllTimeCheckBox.IsChecked ?? false);
+            AdminStartDatePicker.IsEnabled = enablePickers;
+            AdminEndDatePicker.IsEnabled = enablePickers;
+        }
+        private void AdminShowAllTimeCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateDatePickersEnabledState();
+            if (this.IsLoaded && OrdersPanel.IsVisible)
+            {
+                ApplyAdminOrderFilters();
+            }
+        }
         public AdminMainWindow(Пользователь user)
         {
             InitializeComponent();
             _loggedInUser = user;
             DishesItemsControl.ItemsSource = _dishViewModels;
+
+            AdminStartDatePicker.SelectedDate = DateTime.Today;
+            AdminEndDatePicker.SelectedDate = DateTime.Today;
+            AdminShowAllTimeCheckBox.IsChecked = false;
+            UpdateDatePickersEnabledState();
+
             ShowSection("Профиль");
+        }
+
+
+        private void AdminDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.IsLoaded && OrdersPanel.IsVisible &&
+                AdminStartDatePicker.SelectedDate.HasValue && AdminEndDatePicker.SelectedDate.HasValue)
+            {
+                if (AdminStartDatePicker.SelectedDate.Value > AdminEndDatePicker.SelectedDate.Value)
+                {
+                    return;
+                }
+                ApplyAdminOrderFilters();
+            }
         }
 
         private void MenuButton_Click(object sender, RoutedEventArgs e)
@@ -89,7 +300,7 @@ namespace ChickenAndPoint.Admin
                     break;
                 case "Заказы":
                     OrdersPanel.Visibility = Visibility.Visible;
-                    // await LoadOrdersAsync();
+                    await LoadAdminOrdersAsync();
                     break;
                 case "ТипыЗаказов":
                     OrderTypesPanel.Visibility = Visibility.Visible;
@@ -128,6 +339,9 @@ namespace ChickenAndPoint.Admin
             UsersDataGrid.ItemsSource = null;
             UsersDataGrid.Visibility = Visibility.Collapsed;
             _roleNamesCache.Clear();
+            _allLoadedUsers.Clear();
+            _clientNamesCache.Clear();
+
             EditUserButton.IsEnabled = false;
             DeleteUserButton.IsEnabled = false;
 
@@ -153,19 +367,24 @@ namespace ChickenAndPoint.Admin
 
                 var usersResponse = await App.SupabaseClient.From<Пользователь>().Select("*").Get();
 
-
                 if (usersResponse?.Models != null)
                 {
+                    _clientNamesCache = usersResponse.Models
+                        .Where(u => u != null)
+                        .ToDictionary(u => u.Id, u => u.ПолноеИмя ?? "Имя не указано");
+
                     if (!usersResponse.Models.Any())
                     {
                         UsersLoadingStatus.Text = "Список пользователей пуст.";
                         UsersLoadingStatus.Visibility = Visibility.Visible;
-                        UsersDataGrid.ItemsSource = new List<UserViewModel>();
+                        _allLoadedUsers = new List<UserViewModel>();
+                        ApplyUserFilter();
                         UsersDataGrid.Visibility = Visibility.Visible;
                         return;
                     }
 
                     var userViewModels = usersResponse.Models
+                        .Where(u => u != null)
                         .OrderBy(u => u.ПолноеИмя)
                         .Select(u => new UserViewModel
                         {
@@ -177,13 +396,15 @@ namespace ChickenAndPoint.Admin
                             Почта = u.Почта ?? "Нет почты"
                         }).ToList();
 
-                    UsersDataGrid.ItemsSource = userViewModels;
+                    _allLoadedUsers = userViewModels;
+                    ApplyUserFilter();
                     UsersDataGrid.Visibility = Visibility.Visible;
-                    UsersLoadingStatus.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     UsersLoadingStatus.Text = "Не удалось загрузить пользователей.";
+                    _allLoadedUsers = new List<UserViewModel>();
+                    ApplyUserFilter();
                     UsersLoadingStatus.Visibility = Visibility.Visible;
                 }
             }
@@ -191,9 +412,61 @@ namespace ChickenAndPoint.Admin
             {
                 UsersLoadingStatus.Text = $"Ошибка загрузки: {ex.Message}";
                 UsersLoadingStatus.Visibility = Visibility.Visible;
+                _allLoadedUsers = new List<UserViewModel>();
+                _clientNamesCache.Clear();
+                ApplyUserFilter();
                 MessageBox.Show($"Произошла ошибка при загрузке пользователей: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void ApplyUserFilter()
+        {
+            if (_allLoadedUsers == null) return;
+
+            string searchText = UserSearchTextBox.Text.Trim().ToLowerInvariant();
+            IEnumerable<UserViewModel> filteredList = _allLoadedUsers;
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filteredList = _allLoadedUsers.Where(user =>
+                    (user.ПолноеИмя?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (user.Почта?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (user.НомерТелефона?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (user.НазваниеРоли?.ToLowerInvariant().Contains(searchText) ?? false)
+                );
+            }
+
+            UsersDataGrid.ItemsSource = filteredList.ToList();
+
+            if (!_allLoadedUsers.Any())
+            {
+                UsersLoadingStatus.Text = "Список пользователей пуст.";
+                UsersLoadingStatus.Visibility = Visibility.Visible;
+            }
+            else if (!filteredList.Any() && !string.IsNullOrEmpty(searchText))
+            {
+                UsersLoadingStatus.Text = "Пользователи не найдены по вашему запросу.";
+                UsersLoadingStatus.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                UsersLoadingStatus.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void UserSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded && UsersPanel.IsVisible)
+            {
+                ApplyUserFilter();
+            }
+        }
+
+        private void ResetUserSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            UserSearchTextBox.Text = string.Empty;
+        }
+
 
         private void UsersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -275,7 +548,6 @@ namespace ChickenAndPoint.Admin
                         .Delete();
 
                     profileDeleted = true;
-                    System.Diagnostics.Debug.WriteLine($"Профиль пользователя {selectedUserVm.Id} успешно удален.");
                 }
                 catch (Exception profileEx)
                 {
@@ -309,10 +581,18 @@ namespace ChickenAndPoint.Admin
 
         private async Task LoadDishesAsync()
         {
+
             DishesLoadingStatus.Text = "Загрузка блюд...";
             DishesLoadingStatus.Visibility = Visibility.Visible;
             _dishViewModels.Clear();
+            _allLoadedDishes.Clear();
             DishesItemsControl.Visibility = Visibility.Collapsed;
+
+            bool categoriesLoaded = await LoadAndPopulateCategoriesFilterAsync();
+            if (!categoriesLoaded)
+            {
+                MessageBox.Show("Не удалось загрузить категории для фильтра.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
 
             try
             {
@@ -320,21 +600,16 @@ namespace ChickenAndPoint.Admin
                 {
                     DishesLoadingStatus.Text = "Клиент Supabase не инициализирован.";
                     MessageBox.Show(DishesLoadingStatus.Text, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ApplyDishFilter();
                     return;
                 }
 
-                if (_categoryNamesCache.Count == 0)
+                if (_categoryNamesCache.Count == 0 && categoriesLoaded)
                 {
-
                     var categoriesResponse = await App.SupabaseClient.From<Категории>().Select("*").Get();
-
                     if (categoriesResponse?.Models != null)
                     {
                         _categoryNamesCache = categoriesResponse.Models.ToDictionary(c => c.Id, c => c.НазваниеКатегории ?? "?");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Не удалось загрузить справочник категорий.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
 
@@ -342,42 +617,174 @@ namespace ChickenAndPoint.Admin
 
                 if (dishesResponse?.Models != null)
                 {
-                    if (!dishesResponse.Models.Any())
-                    {
-                        DishesLoadingStatus.Text = "Список блюд пуст.";
-                        DishesLoadingStatus.Visibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        foreach (var dish in dishesResponse.Models.OrderBy(d => d.НазваниеБлюда))
+                    _allLoadedDishes = dishesResponse.Models
+                        .OrderBy(d => d.НазваниеБлюда)
+                        .Select(dish => new DishAdminViewModel
                         {
-                            _dishViewModels.Add(new DishAdminViewModel
-                            {
-                                Id = dish.Id,
-                                IdКатегории = dish.IdКатегории,
-                                НазваниеБлюда = dish.НазваниеБлюда,
-                                Описание = dish.Описание,
-                                Цена = dish.Цена,
-                                СсылкаНаИзображение = dish.СсылкаНаИзображение,
-                                Доступно = dish.Доступно,
-                                НазваниеКатегории = _categoryNamesCache.TryGetValue(dish.IdКатегории, out string catName) ? catName : "???"
-                            });
-                        }
-                        DishesLoadingStatus.Visibility = Visibility.Collapsed;
-                        DishesItemsControl.Visibility = Visibility.Visible;
+                            Id = dish.Id,
+                            IdКатегории = dish.IdКатегории,
+                            НазваниеБлюда = dish.НазваниеБлюда,
+                            Описание = dish.Описание,
+                            Цена = dish.Цена,
+                            СсылкаНаИзображение = dish.СсылкаНаИзображение,
+                            Доступно = dish.Доступно,
+                            НазваниеКатегории = _categoryNamesCache.TryGetValue(dish.IdКатегории, out string catName) ? catName : "???"
+                        }).ToList();
+
+                    foreach (var vm in _allLoadedDishes)
+                    {
+                        _ = vm.LoadImageAsync();
                     }
                 }
                 else
                 {
                     DishesLoadingStatus.Text = "Не удалось загрузить блюда.";
-                    DishesLoadingStatus.Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)
             {
                 DishesLoadingStatus.Text = $"Ошибка загрузки блюд: {ex.Message}";
-                DishesLoadingStatus.Visibility = Visibility.Visible;
                 MessageBox.Show(DishesLoadingStatus.Text, "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ApplyDishFilter();
+            }
+        }
+
+        private async Task<bool> LoadAndPopulateCategoriesFilterAsync()
+        {
+            if (_categoryFilterSource.Any()) return true;
+
+            _categoryNamesCache.Clear();
+            _categoryFilterSource.Clear();
+
+            try
+            {
+                if (App.SupabaseClient == null) return false;
+
+                var categoriesResponse = await App.SupabaseClient.From<Категории>().Select("*").Get();
+
+                _categoryFilterSource.Add(new KeyValuePair<Guid?, string>(null, "[ Все категории ]"));
+
+                if (categoriesResponse?.Models != null && categoriesResponse.Models.Any())
+                {
+                    var sortedCategories = categoriesResponse.Models.OrderBy(c => c.НазваниеКатегории).ToList();
+
+                    foreach (var category in sortedCategories)
+                    {
+                        _categoryNamesCache[category.Id] = category.НазваниеКатегории ?? "???";
+                        _categoryFilterSource.Add(new KeyValuePair<Guid?, string>(category.Id, category.НазваниеКатегории ?? "???"));
+                    }
+                }
+                else
+                {
+                }
+
+                DishCategoryFilterComboBox.ItemsSource = _categoryFilterSource;
+                DishCategoryFilterComboBox.SelectedIndex = 0;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки категорий для фильтра: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!_categoryFilterSource.Any())
+                {
+                    _categoryFilterSource.Add(new KeyValuePair<Guid?, string>(null, "[ Все категории ]"));
+                    DishCategoryFilterComboBox.ItemsSource = _categoryFilterSource;
+                    DishCategoryFilterComboBox.SelectedIndex = 0;
+                }
+                return false;
+            }
+        }
+
+        private void ApplyDishFilter()
+        {
+            if (_allLoadedDishes == null) _allLoadedDishes = new List<DishAdminViewModel>();
+            if (_dishViewModels == null) _dishViewModels = new ObservableCollection<DishAdminViewModel>();
+
+            Guid? selectedCategoryId = null;
+            if (DishCategoryFilterComboBox.SelectedValue is Guid guidValue)
+            {
+                selectedCategoryId = guidValue;
+            }
+
+            string searchText = DishSearchTextBox.Text.Trim().ToLowerInvariant();
+
+            IEnumerable<DishAdminViewModel> filteredList = _allLoadedDishes;
+
+            if (selectedCategoryId.HasValue)
+            {
+                filteredList = filteredList.Where(dish => dish.IdКатегории == selectedCategoryId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filteredList = filteredList.Where(dish =>
+                    (dish.НазваниеБлюда?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (dish.Описание?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (dish.НазваниеКатегории?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (dish.Цена.ToString(CultureInfo.InvariantCulture).Contains(searchText))
+                );
+            }
+
+            _dishViewModels.Clear();
+            foreach (var dish in filteredList)
+            {
+                _dishViewModels.Add(dish);
+            }
+
+            if (!_allLoadedDishes.Any())
+            {
+                if (DishesLoadingStatus.Text == "Загрузка блюд...") DishesLoadingStatus.Text = "Список блюд пуст.";
+                DishesLoadingStatus.Visibility = Visibility.Visible;
+                DishesItemsControl.Visibility = Visibility.Collapsed;
+            }
+            else if (!filteredList.Any())
+            {
+                DishesLoadingStatus.Text = "Блюда, соответствующие фильтрам, не найдены.";
+                DishesLoadingStatus.Visibility = Visibility.Visible;
+                DishesItemsControl.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                DishesLoadingStatus.Visibility = Visibility.Collapsed;
+                DishesItemsControl.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void DishSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded && DishesPanel.IsVisible)
+            {
+                ApplyDishFilter();
+            }
+        }
+
+        private void DishCategoryFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.IsLoaded && DishesPanel.IsVisible && e.AddedItems.Count > 0)
+            {
+                ApplyDishFilter();
+            }
+        }
+
+        private void ResetDishSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool changed = false;
+            if (DishSearchTextBox.Text != string.Empty)
+            {
+                DishSearchTextBox.Text = string.Empty;
+                changed = true;
+            }
+            if (DishCategoryFilterComboBox.SelectedIndex != 0)
+            {
+                DishCategoryFilterComboBox.SelectedIndex = 0;
+                changed = true;
+            }
+            if (!changed)
+            {
+                ApplyDishFilter();
             }
         }
 
@@ -427,6 +834,282 @@ namespace ChickenAndPoint.Admin
             if (result == true)
             {
                 await LoadDishesAsync();
+            }
+        }
+
+        private async Task LoadAdminOrdersAsync()
+        {
+            AdminOrdersStatusText.Text = "Загрузка заказов...";
+            AdminOrdersStatusText.Visibility = Visibility.Visible;
+            AdminOrdersDataGrid.ItemsSource = null;
+            _allAdminOrders.Clear();
+            _adminStatusNames.Clear();
+            _adminTypeNames.Clear();
+            _adminOrderStatusFilterSource.Clear();
+            _adminOrderTypeFilterSource.Clear();
+
+            AdminStatusFilterComboBox.ItemsSource = null;
+            AdminTypeFilterComboBox.ItemsSource = null;
+
+            try
+            {
+                if (App.SupabaseClient == null)
+                {
+                    AdminOrdersStatusText.Text = "Ошибка: Клиент Supabase не инициализирован.";
+                    return;
+                }
+
+                var statusesTask = App.SupabaseClient.From<СтатусЗаказа>().Select("*").Get();
+                var typesTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Get();
+
+                await Task.WhenAll(statusesTask, typesTask);
+
+                var statusesResponse = statusesTask.Result;
+                if (statusesResponse?.Models != null)
+                {
+                    _adminStatusNames = statusesResponse.Models.ToDictionary(s => s.Id, s => s.НазваниеСтатуса ?? "?");
+                    PopulateAdminFilterComboBox(AdminStatusFilterComboBox, _adminStatusNames, "статусы", ref _adminOrderStatusFilterSource);
+                }
+                else { AdminOrdersStatusText.Text = "Ошибка: Не удалось загрузить статусы."; }
+
+                var typesResponse = typesTask.Result;
+                if (typesResponse?.Models != null)
+                {
+                    _adminTypeNames = typesResponse.Models.ToDictionary(t => t.Id, t => t.НазваниеТипа ?? "?");
+                    PopulateAdminFilterComboBox(AdminTypeFilterComboBox, _adminTypeNames, "типы", ref _adminOrderTypeFilterSource);
+                }
+                else { AdminOrdersStatusText.Text = "Ошибка: Не удалось загрузить типы."; }
+
+                var ordersResponse = await App.SupabaseClient.From<Заказы>().Select("*").Get();
+
+                if (ordersResponse?.Models == null || !ordersResponse.Models.Any())
+                {
+                    AdminOrdersStatusText.Text = "Заказы не найдены.";
+                    _allAdminOrders = new List<OrderDisplayViewModel>();
+                    ApplyAdminOrderFilters();
+                    AdminOrdersStatusText.Visibility = Visibility.Visible;
+                    return;
+                }
+
+                var orders = ordersResponse.Models;
+                var clientIds = orders.Select(o => o.IdКлиента).Distinct().ToList();
+
+                bool needToLoadClients = false;
+                if (_clientNamesCache == null || !_clientNamesCache.Any()) needToLoadClients = true;
+                else
+                {
+                    foreach (var id in clientIds)
+                    {
+                        if (!_clientNamesCache.ContainsKey(id))
+                        {
+                            needToLoadClients = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (needToLoadClients && clientIds.Any())
+                {
+                    var clientIdsStr = clientIds.Select(id => id.ToString()).ToList();
+                    Debug.WriteLine($"Loading clients for admin orders: {string.Join(",", clientIdsStr)}");
+                    var usersResponse = await App.SupabaseClient.From<Пользователь>()
+                                           .Select("*")
+                                           .Filter("id", Operator.In, clientIdsStr)
+                                           .Get();
+                    if (usersResponse?.Models != null)
+                    {
+                        foreach (var user in usersResponse.Models)
+                        {
+                            _clientNamesCache[user.Id] = user.ПолноеИмя ?? "Имя не указано";
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Failed to load client names for admin orders.");
+                    }
+                }
+
+                var viewModels = orders.Select(order => new OrderDisplayViewModel
+                {
+                    Id = order.Id,
+                    НомерЗаказа = order.НомерЗаказа ?? "-",
+                    ИмяКлиента = _clientNamesCache.TryGetValue(order.IdКлиента, out string clientName) ? clientName : "Клиент (?)",
+                    НазваниеСтатуса = _adminStatusNames.TryGetValue(order.IdСтатуса, out string statusName) ? statusName : "Статус (?)",
+                    НазваниеТипа = _adminTypeNames.TryGetValue(order.IdТипа, out string typeName) ? typeName : "Тип (?)",
+                    АдресДоставки = string.IsNullOrWhiteSpace(order.АдресДоставки) ?
+                                    (_adminTypeNames.TryGetValue(order.IdТипа, out string tName) ? tName : "Тип (?)")
+                                    : order.АдресДоставки,
+                    ИтоговаяСумма = order.ИтоговаяСумма,
+                    ВремяСоздания = order.ВремяСоздания,
+                    ВремяОбновления = order.ВремяОбновления,
+                    IdСтатуса = order.IdСтатуса,
+                    IdТипа = order.IdТипа,
+                    IdКлиента = order.IdКлиента
+                }).ToList();
+
+                var sortedViewModels = viewModels.OrderByDescending(vm => vm.ВремяСоздания).ToList();
+                _allAdminOrders = sortedViewModels;
+                ApplyAdminOrderFilters();
+                AdminOrdersStatusText.Visibility = Visibility.Collapsed;
+
+            }
+            catch (Exception ex)
+            {
+                AdminOrdersStatusText.Text = $"Ошибка загрузки заказов: {ex.Message}";
+                AdminOrdersStatusText.Visibility = Visibility.Visible;
+                MessageBox.Show($"Ошибка загрузки заказов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                _allAdminOrders = new List<OrderDisplayViewModel>();
+                ApplyAdminOrderFilters();
+            }
+        }
+
+        private void PopulateAdminFilterComboBox(ComboBox comboBox, Dictionary<Guid, string> dataSource, string typeName, ref List<KeyValuePair<Guid?, string>> filterSourceList)
+        {
+            filterSourceList.Clear();
+            filterSourceList.Add(new KeyValuePair<Guid?, string>(null, $"[Все {typeName}]"));
+            filterSourceList.AddRange(dataSource.OrderBy(kvp => kvp.Value)
+                                                .Select(kvp => new KeyValuePair<Guid?, string>(kvp.Key, kvp.Value)));
+            comboBox.ItemsSource = filterSourceList;
+            comboBox.SelectedIndex = 0;
+        }
+        private void ApplyAdminOrderFilters()
+        {
+            if (_allAdminOrders == null) return;
+
+            IEnumerable<OrderDisplayViewModel> filteredList = _allAdminOrders;
+
+            Guid? selectedStatusId = null;
+            if (AdminStatusFilterComboBox.SelectedValue is Guid statusGuid) selectedStatusId = statusGuid;
+            if (selectedStatusId.HasValue)
+            {
+                filteredList = filteredList.Where(vm => vm.IdСтатуса == selectedStatusId.Value);
+            }
+
+            Guid? selectedTypeId = null;
+            if (AdminTypeFilterComboBox.SelectedValue is Guid typeGuid) selectedTypeId = typeGuid;
+            if (selectedTypeId.HasValue)
+            {
+                filteredList = filteredList.Where(vm => vm.IdТипа == selectedTypeId.Value);
+            }
+
+            bool showAllTime = AdminShowAllTimeCheckBox.IsChecked ?? false;
+            if (!showAllTime && AdminStartDatePicker.SelectedDate.HasValue && AdminEndDatePicker.SelectedDate.HasValue)
+            {
+                DateTime startDate = AdminStartDatePicker.SelectedDate.Value.Date;
+                DateTime endDateExclusive = AdminEndDatePicker.SelectedDate.Value.Date.AddDays(1);
+                DateTimeOffset startOffset = new DateTimeOffset(startDate);
+                DateTimeOffset endOffsetExclusive = new DateTimeOffset(endDateExclusive);
+
+                filteredList = filteredList.Where(vm =>
+                    vm.ВремяСоздания >= startOffset && vm.ВремяСоздания < endOffsetExclusive
+                );
+            }
+
+            string searchText = AdminOrderSearchTextBox.Text.Trim().ToLowerInvariant();
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                filteredList = filteredList.Where(vm =>
+                    (vm.НомерЗаказа?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (vm.ИмяКлиента?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (vm.НазваниеСтатуса?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (vm.НазваниеТипа?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (vm.АдресДоставки?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (vm.ИтоговаяСумма?.ToString("F2", CultureInfo.InvariantCulture).Contains(searchText) ?? false) ||
+                    (vm.ВремяСоздания.ToString("dd.MM HH:mm", CultureInfo.InvariantCulture).Contains(searchText))
+                );
+            }
+
+            AdminOrdersDataGrid.ItemsSource = filteredList.ToList();
+
+            if (!_allAdminOrders.Any())
+            {
+                AdminOrdersStatusText.Text = "Заказы не найдены.";
+                AdminOrdersStatusText.Visibility = Visibility.Visible;
+            }
+            else if (!filteredList.Any())
+            {
+                AdminOrdersStatusText.Text = "Заказы, соответствующие фильтрам, не найдены.";
+                AdminOrdersStatusText.Visibility = Visibility.Visible;
+            }
+            else if (AdminOrdersStatusText.Visibility == Visibility.Visible)
+            {
+                AdminOrdersStatusText.Visibility = Visibility.Collapsed;
+            }
+        }
+        private void AdminFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.IsLoaded && OrdersPanel.IsVisible && e.AddedItems.Count > 0)
+            {
+                ApplyAdminOrderFilters();
+            }
+        }
+
+        private void AdminOrderSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded && OrdersPanel.IsVisible)
+            {
+                ApplyAdminOrderFilters();
+            }
+        }
+
+        private void AdminResetFiltersButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool changed = false;
+
+            if (AdminStatusFilterComboBox != null && AdminStatusFilterComboBox.SelectedIndex != 0)
+            {
+                AdminStatusFilterComboBox.SelectedIndex = 0;
+                changed = true;
+            }
+            if (AdminTypeFilterComboBox != null && AdminTypeFilterComboBox.SelectedIndex != 0)
+            {
+                AdminTypeFilterComboBox.SelectedIndex = 0;
+                changed = true;
+            }
+
+            bool dateChanged = false;
+            if (AdminStartDatePicker != null && AdminStartDatePicker.SelectedDate != DateTime.Today)
+            {
+                AdminStartDatePicker.SelectedDate = DateTime.Today;
+                dateChanged = true;
+            }
+            if (AdminEndDatePicker != null && AdminEndDatePicker.SelectedDate != DateTime.Today)
+            {
+                AdminEndDatePicker.SelectedDate = DateTime.Today;
+                dateChanged = true;
+            }
+
+            bool checkBoxChanged = false;
+            if (AdminShowAllTimeCheckBox != null && AdminShowAllTimeCheckBox.IsChecked == true)
+            {
+                AdminShowAllTimeCheckBox.IsChecked = false;
+                checkBoxChanged = true;
+                changed = true;
+            }
+
+            if (!changed || (dateChanged && !checkBoxChanged))
+            {
+                ApplyAdminOrderFilters();
+            }
+        }
+
+
+
+        private void AdminOrderDetailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Guid orderId)
+            {
+                OrderAllInformationWindow detailsWindow = new OrderAllInformationWindow(orderId);
+                detailsWindow.Owner = this;
+                detailsWindow.ShowDialog();
+            }
+        }
+        private void AdminResetSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (AdminOrderSearchTextBox != null)
+            {
+                AdminOrderSearchTextBox.Text = string.Empty;
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿// Файл: Models/Пользователь.cs
-using Postgrest.Models;
+﻿using Postgrest.Models;
 using Postgrest.Attributes;
 using System;
 

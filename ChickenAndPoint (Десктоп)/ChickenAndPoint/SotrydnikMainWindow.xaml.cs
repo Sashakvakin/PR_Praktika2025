@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+
 namespace ChickenAndPoint
 {
 
@@ -295,11 +296,10 @@ namespace ChickenAndPoint
         public void UpdateItems(IEnumerable<OrderItemDisplayViewModel> freshItems)
         {
             var freshItemsList = freshItems?.ToList() ?? new List<OrderItemDisplayViewModel>();
-            var currentItemsList = this.Items.ToList(); // Копия текущих
+            var currentItemsList = this.Items.ToList();
 
-            bool collectionChanged = false; // Флаг, что были изменения
+            bool collectionChanged = false;
 
-            // 1. Удалить те, которых нет в свежих
             var itemsToRemove = currentItemsList
                 .Where(currentItem => !freshItemsList.Any(freshItem => AreItemsEqual(currentItem, freshItem)))
                 .ToList();
@@ -313,35 +313,26 @@ namespace ChickenAndPoint
                 collectionChanged = true;
             }
 
-
-            // 2. Обновить существующие и добавить новые
             foreach (var freshItem in freshItemsList)
             {
                 var existingItem = currentItemsList.FirstOrDefault(currentItem => AreItemsEqual(currentItem, freshItem));
                 if (existingItem != null)
                 {
-                    // Обновляем свойства существующего, если они изменились
-                    // (INotifyPropertyChanged внутри OrderItemDisplayViewModel позаботится об обновлении UI для этого элемента)
                     if (existingItem.Количество != freshItem.Количество) { existingItem.Количество = freshItem.Количество; }
                     if (existingItem.ЦенаНаМоментЗаказа != freshItem.ЦенаНаМоментЗаказа) { existingItem.ЦенаНаМоментЗаказа = freshItem.ЦенаНаМоментЗаказа; }
                 }
                 else
                 {
-                    // Добавляем новый
                     this.Items.Add(freshItem);
-                    collectionChanged = true; // Добавление - это тоже изменение
+                    collectionChanged = true;
                 }
             }
 
-            // 3. ЯВНО УВЕДОМЛЯЕМ ОБ ИЗМЕНЕНИИ КОЛЛЕКЦИИ ITEMS
-            // Это заставит Binding для UniformGrid.Columns пересчитаться
             if (collectionChanged)
             {
                 OnPropertyChanged(nameof(Items));
             }
 
-            // Опциональная сортировка, если нужна
-            // ...
         }
 
         private bool AreItemsEqual(OrderItemDisplayViewModel item1, OrderItemDisplayViewModel item2)
@@ -379,6 +370,7 @@ namespace ChickenAndPoint
             throw new NotImplementedException();
         }
     }
+
     public class StatusToButtonTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -481,7 +473,7 @@ namespace ChickenAndPoint
         {
             InitializeComponent();
             _loggedInUser = user;
-            DataContext = this; // Устанавливаем DataContext
+            DataContext = this;
             InitializeStatusGuids();
             CurrentOrdersItemsControl.ItemsSource = _currentOrders;
 
@@ -975,7 +967,6 @@ namespace ChickenAndPoint
                 WindowState = WindowState.Maximized;
                 WindowStyle = WindowStyle.None;
                 ResizeMode = ResizeMode.NoResize;
-                //Скрываем левое меню
                 LeftMenuPanel.Visibility = Visibility.Collapsed;
 
                 ToggleFullScreenButton.Content = new StackPanel
@@ -992,7 +983,6 @@ namespace ChickenAndPoint
                 WindowState = WindowState.Normal;
                 WindowStyle = WindowStyle.SingleBorderWindow;
                 ResizeMode = ResizeMode.CanResize;
-                //Возвращаем видимость левого меню
                 LeftMenuPanel.Visibility = Visibility.Visible;
 
                 ToggleFullScreenButton.Content = new StackPanel
