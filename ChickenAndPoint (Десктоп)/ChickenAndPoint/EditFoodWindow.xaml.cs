@@ -1,4 +1,4 @@
-﻿using ChickenAndPoint.Models; 
+﻿using ChickenAndPoint.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,15 +16,18 @@ namespace ChickenAndPoint
     public partial class EditFoodWindow : Window
     {
         private DishAdminViewModel _dishViewModel;
-        private Блюда _originalDishData;
         private List<Категории> _availableCategories;
         private ImageUrlToBitmapConverter _imageConverter = new ImageUrlToBitmapConverter();
+
+        public Блюда UpdatedDishData { get; private set; }
+        public bool CategoriesMayHaveChanged { get; private set; }
 
         public EditFoodWindow(DishAdminViewModel dishVm)
         {
             InitializeComponent();
             _dishViewModel = dishVm ?? throw new ArgumentNullException(nameof(dishVm));
-            _originalDishData = new Блюда { Id = _dishViewModel.Id };
+            UpdatedDishData = null;
+            CategoriesMayHaveChanged = false;
             Loaded += EditFoodWindow_Loaded;
         }
 
@@ -44,7 +47,29 @@ namespace ChickenAndPoint
                 if (response?.Models != null)
                 {
                     _availableCategories = response.Models.OrderBy(c => c.НазваниеКатегории).ToList();
+                    var currentSelectionId = (CategoryComboBox.SelectedItem as Категории)?.Id ?? (Guid?)CategoryComboBox.SelectedValue;
                     CategoryComboBox.ItemsSource = _availableCategories;
+
+                    if (currentSelectionId.HasValue)
+                    {
+                        var itemToRestore = _availableCategories.FirstOrDefault(c => c.Id == currentSelectionId.Value);
+                        if (itemToRestore != null)
+                        {
+                            CategoryComboBox.SelectedItem = itemToRestore;
+                        }
+                        else
+                        {
+                            CategoryComboBox.SelectedIndex = -1;
+                        }
+                    }
+                    else if (_availableCategories.Any())
+                    {
+                        var initialCategory = _availableCategories.FirstOrDefault(c => c.Id == _dishViewModel.IdКатегории);
+                        if (initialCategory != null)
+                        {
+                            CategoryComboBox.SelectedItem = initialCategory;
+                        }
+                    }
                 }
                 else
                 {
@@ -66,7 +91,33 @@ namespace ChickenAndPoint
             PriceTextBox.Text = _dishViewModel.Цена.ToString("F2", CultureInfo.InvariantCulture);
             ImageUrlTextBox.Text = _dishViewModel.СсылкаНаИзображение;
             AvailableCheckBox.IsChecked = _dishViewModel.Доступно;
-            CategoryComboBox.SelectedValue = _dishViewModel.IdКатегории;
+
+            if (_availableCategories != null)
+            {
+                var categoryToSelect = _availableCategories.FirstOrDefault(c => c.Id == _dishViewModel.IdКатегории);
+                if (categoryToSelect != null)
+                {
+                    CategoryComboBox.SelectedItem = categoryToSelect;
+                }
+                else
+                {
+                    CategoryComboBox.SelectedIndex = -1;
+                    if (CategoryComboBox.ItemsSource != null)
+                    {
+                        bool found = false;
+                        foreach (var item in CategoryComboBox.Items)
+                        {
+                            if (item is Категории cat && cat.Id == _dishViewModel.IdКатегории)
+                            {
+                                CategoryComboBox.SelectedItem = item;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) CategoryComboBox.SelectedIndex = -1;
+                    }
+                }
+            }
         }
 
         private void UpdateImagePreview()
@@ -79,17 +130,20 @@ namespace ChickenAndPoint
                 {
                     PreviewImage.Source = bmp;
                     PreviewPlaceholder.Visibility = Visibility.Collapsed;
+                    PreviewImage.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     PreviewImage.Source = null;
                     PreviewPlaceholder.Visibility = Visibility.Visible;
+                    PreviewImage.Visibility = Visibility.Collapsed;
                 }
             }
             else
             {
                 PreviewImage.Source = null;
                 PreviewPlaceholder.Visibility = Visibility.Collapsed;
+                PreviewImage.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -109,10 +163,8 @@ namespace ChickenAndPoint
             }
         }
 
-
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-
             if (string.IsNullOrWhiteSpace(NameTextBox.Text))
             {
                 MessageBox.Show("Название блюда не может быть пустым.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -127,17 +179,33 @@ namespace ChickenAndPoint
                 return;
             }
 
-            if (CategoryComboBox.SelectedValue == null || !(CategoryComboBox.SelectedValue is Guid))
+            Категории selectedCategory = null;
+            if (CategoryComboBox.SelectedItem is Категории catItem)
+            {
+                selectedCategory = catItem;
+            }
+            else if (CategoryComboBox.SelectedValue is Guid categoryIdFromValue)
+            {
+                selectedCategory = _availableCategories?.FirstOrDefault(c => c.Id == categoryIdFromValue);
+                if (selectedCategory == null)
+                {
+                    MessageBox.Show("Выбранная категория не найдена. Пожалуйста, выберите категорию из списка.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CategoryComboBox.Focus();
+                    return;
+                }
+            }
+            else
             {
                 MessageBox.Show("Пожалуйста, выберите категорию.", "Ошибка валидации", MessageBoxButton.OK, MessageBoxImage.Warning);
                 CategoryComboBox.Focus();
                 return;
             }
 
-            Guid selectedCategoryId = (Guid)CategoryComboBox.SelectedValue;
+            Guid selectedCategoryId = selectedCategory.Id;
 
-            var dishUpdate = new Блюда
+            var dishUpdateForReturn = new Блюда
             {
+                Id = _dishViewModel.Id,
                 НазваниеБлюда = NameTextBox.Text.Trim(),
                 Описание = DescriptionTextBox.Text.Trim(),
                 Цена = price,
@@ -149,6 +217,7 @@ namespace ChickenAndPoint
             SaveButton.IsEnabled = false;
             CancelButton.IsEnabled = false;
             this.Cursor = Cursors.Wait;
+            UpdatedDishData = null;
 
             try
             {
@@ -159,27 +228,35 @@ namespace ChickenAndPoint
                 }
 
                 var response = await App.SupabaseClient
-                     .From<Блюда>()
-                     .Where(b => b.Id == _originalDishData.Id)
+                    .From<Блюда>()
+                    .Where(b => b.Id == _dishViewModel.Id)
+                    .Set(b => b.НазваниеБлюда, dishUpdateForReturn.НазваниеБлюда)
+                    .Set(b => b.Описание, dishUpdateForReturn.Описание)
+                    .Set(b => b.Цена, dishUpdateForReturn.Цена)
+                    .Set(b => b.СсылкаНаИзображение, dishUpdateForReturn.СсылкаНаИзображение)
+                    .Set(b => b.Доступно, dishUpdateForReturn.Доступно)
+                    .Set(b => b.IdКатегории, dishUpdateForReturn.IdКатегории)
+                    .Update();
 
-                     .Set(b => b.НазваниеБлюда, dishUpdate.НазваниеБлюда)
-                     .Set(b => b.Описание, dishUpdate.Описание)
-                     .Set(b => b.Цена, dishUpdate.Цена)
-                     .Set(b => b.СсылкаНаИзображение, dishUpdate.СсылкаНаИзображение)
-                     .Set(b => b.Доступно, dishUpdate.Доступно)
-                     .Set(b => b.IdКатегории, dishUpdate.IdКатегории)
-                     .Update();
-
-                if (response.ResponseMessage.IsSuccessStatusCode)
+                if (response?.ResponseMessage != null && response.ResponseMessage.IsSuccessStatusCode)
                 {
+                    UpdatedDishData = dishUpdateForReturn;
                     MessageBox.Show("Данные блюда успешно обновлены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    this.DialogResult = true;
+                    this.Close();
+                }
+                else if (response?.Models == null && response?.ResponseMessage != null && response.ResponseMessage.IsSuccessStatusCode)
+                {
+                    UpdatedDishData = dishUpdateForReturn;
+                    MessageBox.Show("Данные блюда успешно обновлены (модель не возвращена).", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     this.DialogResult = true;
                     this.Close();
                 }
                 else
                 {
-                    string errorMsg = await response.ResponseMessage.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Не удалось обновить блюдо: {response.ResponseMessage.ReasonPhrase}\n{errorMsg}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
+                    string errorMsg = response?.ResponseMessage != null ? await response.ResponseMessage.Content.ReadAsStringAsync() : "Неизвестная ошибка при обновлении.";
+                    string reasonPhrase = response?.ResponseMessage?.ReasonPhrase ?? "N/A";
+                    MessageBox.Show($"Не удалось обновить блюдо: {reasonPhrase}\n{errorMsg}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             catch (Exception ex)
@@ -188,7 +265,7 @@ namespace ChickenAndPoint
             }
             finally
             {
-                if (this.IsVisible)
+                if (this.IsVisible && this.DialogResult != true)
                 {
                     SaveButton.IsEnabled = true;
                     CancelButton.IsEnabled = true;
@@ -199,21 +276,22 @@ namespace ChickenAndPoint
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            UpdatedDishData = null;
             this.DialogResult = false;
             this.Close();
         }
+
         private void ChangeImageButton_Click(object sender, RoutedEventArgs e)
         {
             var imageSelectorWindow = new FoodImageWindow();
             imageSelectorWindow.Owner = this;
-
             bool? result = imageSelectorWindow.ShowDialog();
-
             if (result == true && !string.IsNullOrEmpty(imageSelectorWindow.SelectedImageUrl))
             {
                 ImageUrlTextBox.Text = imageSelectorWindow.SelectedImageUrl;
             }
         }
+
         private async void AddCategoryButton_Click(object sender, RoutedEventArgs e)
         {
             var addCategoryWindow = new AddCategoryFoodWindow();
@@ -222,6 +300,7 @@ namespace ChickenAndPoint
             bool? result = addCategoryWindow.ShowDialog();
             if (result == true && addCategoryWindow.NewCategory != null)
             {
+                CategoriesMayHaveChanged = true;
                 await LoadCategoriesAsync();
                 var newlyAddedCategory = _availableCategories?
                     .FirstOrDefault(c => c.Id == addCategoryWindow.NewCategory.Id);

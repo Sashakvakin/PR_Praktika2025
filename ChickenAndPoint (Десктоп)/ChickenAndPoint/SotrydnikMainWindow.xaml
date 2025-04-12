@@ -10,11 +10,12 @@
         Title="Курочка и точка - Сотрудник" Height="650" Width="1100"
         WindowStartupLocation="CenterScreen"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Background="{DynamicResource MaterialDesignPaper}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
-
+    <Window.Background>
+        <ImageBrush ImageSource="background.png" Stretch="UniformToFill"/>
+    </Window.Background>
     <Window.Resources>
         <local:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
         <local:SubtractValueConverter x:Key="SubtractConverter"/>

@@ -23,10 +23,15 @@ namespace ChickenAndPoint
         private List<Категории> _availableCategories;
         private ImageUrlToBitmapConverter _imageConverter = new ImageUrlToBitmapConverter();
 
+        public Блюда NewlyAddedDish { get; private set; }
+        public bool CategoriesMayHaveChanged { get; private set; }
+
         public AddFoodWindow()
         {
             InitializeComponent();
             Loaded += AddFoodWindow_Loaded;
+            NewlyAddedDish = null;
+            CategoriesMayHaveChanged = false;
         }
 
         private async void AddFoodWindow_Loaded(object sender, RoutedEventArgs e)
@@ -45,7 +50,16 @@ namespace ChickenAndPoint
                 if (response?.Models != null)
                 {
                     _availableCategories = response.Models.OrderBy(c => c.НазваниеКатегории).ToList();
+                    var currentSelectionId = (CategoryComboBox.SelectedItem as Категории)?.Id;
                     CategoryComboBox.ItemsSource = _availableCategories;
+                    if (currentSelectionId.HasValue)
+                    {
+                        var itemToRestore = _availableCategories.FirstOrDefault(c => c.Id == currentSelectionId.Value);
+                        if (itemToRestore != null)
+                        {
+                            CategoryComboBox.SelectedItem = itemToRestore;
+                        }
+                    }
                 }
                 else
                 {
@@ -149,6 +163,7 @@ namespace ChickenAndPoint
             SaveButton.IsEnabled = false;
             CancelButton.IsEnabled = false;
             this.Cursor = System.Windows.Input.Cursors.Wait;
+            NewlyAddedDish = null;
 
             try
             {
@@ -164,6 +179,7 @@ namespace ChickenAndPoint
 
                 if (response?.Models != null && response.Models.Any())
                 {
+                    NewlyAddedDish = response.Models.First();
                     System.Windows.MessageBox.Show("Новое блюдо успешно добавлено.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     this.DialogResult = true;
                     this.Close();
@@ -180,7 +196,7 @@ namespace ChickenAndPoint
             }
             finally
             {
-                if (this.IsVisible)
+                if (this.IsVisible && this.DialogResult != true)
                 {
                     SaveButton.IsEnabled = true;
                     CancelButton.IsEnabled = true;
@@ -191,6 +207,7 @@ namespace ChickenAndPoint
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            NewlyAddedDish = null;
             this.DialogResult = false;
             this.Close();
         }
@@ -203,6 +220,7 @@ namespace ChickenAndPoint
             bool? result = addCategoryWindow.ShowDialog();
             if (result == true && addCategoryWindow.NewCategory != null)
             {
+                CategoriesMayHaveChanged = true;
                 await LoadCategoriesAsync();
                 var newlyAddedCategory = _availableCategories?
                     .FirstOrDefault(c => c.Id == addCategoryWindow.NewCategory.Id);

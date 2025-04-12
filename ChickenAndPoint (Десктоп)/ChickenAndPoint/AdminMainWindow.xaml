@@ -11,11 +11,12 @@
             Title="Курочка и точка - Администратор" Height="700" Width="1100"
             WindowStartupLocation="CenterScreen"
             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-            Background="{DynamicResource MaterialDesignPaper}"
             TextElement.FontWeight="Regular"
             TextElement.FontSize="14"
             FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
-
+    <Window.Background>
+        <ImageBrush ImageSource="background.png" Stretch="UniformToFill"/>
+    </Window.Background>
     <Window.Resources>
         <Style TargetType="Button" x:Key="AdminMenuButtonStyle" BasedOn="{StaticResource MaterialDesignFlatButton}">
             <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
@@ -580,7 +581,7 @@
                     <TextBlock x:Name="CategoriesLoadingStatus" Text="Загрузка..." HorizontalAlignment="Center" Margin="0 50 0 0" Visibility="Collapsed" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
 
                     <materialDesign:Card Padding="0" Margin="10,0,10,10" UniformCornerRadius="8">
-                        <DataGrid x:Name="CategoriesDataGrid" MaxHeight="480" SelectionChanged="CategoriesDataGrid_SelectionChanged">
+                        <DataGrid x:Name="CategoriesDataGrid" MaxHeight="510" SelectionChanged="CategoriesDataGrid_SelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Header=" Иконка" Width="Auto">
                                     <DataGridTemplateColumn.CellTemplate>

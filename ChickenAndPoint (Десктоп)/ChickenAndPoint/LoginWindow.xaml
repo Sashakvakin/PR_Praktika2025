@@ -10,9 +10,11 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="SingleBorderWindow"
         ResizeMode="NoResize"
-        Icon="/logo3.png"
-        Background="{DynamicResource MaterialDesignPaper}">
+        Icon="/logo3.png">
 
+    <Window.Background>
+        <ImageBrush ImageSource="background.png" Stretch="UniformToFill"/>
+    </Window.Background>
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Height="480">
 
