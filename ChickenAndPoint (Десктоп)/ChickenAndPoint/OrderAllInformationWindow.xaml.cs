@@ -1,14 +1,19 @@
 ﻿using ChickenAndPoint.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using static Postgrest.Constants;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
-namespace ChickenAndPoint 
+namespace ChickenAndPoint
 {
     public class OrderDisplayItemViewModel
     {
@@ -21,6 +26,8 @@ namespace ChickenAndPoint
     public partial class OrderAllInformationWindow : Window
     {
         private readonly Guid _orderId;
+        private Guid _currentOrderStatusId;
+
 
         public OrderAllInformationWindow(Guid orderId)
         {
@@ -50,6 +57,7 @@ namespace ChickenAndPoint
             DeliveryAddressTextBlock.Text = "-";
             TotalSumTextBlock.Text = "- ₽";
             TitleTextBlock.Text = $"Заказ №... (ID: {_orderId})";
+            CancelOrderButton.IsEnabled = false;
 
             try
             {
@@ -72,6 +80,8 @@ namespace ChickenAndPoint
                     return;
                 }
 
+                _currentOrderStatusId = orderResponse.IdСтатуса;
+
                 var statusTask = App.SupabaseClient.From<СтатусЗаказа>().Select("*").Filter("id", Operator.Equals, orderResponse.IdСтатуса.ToString()).Single();
                 var typeTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Filter("id", Operator.Equals, orderResponse.IdТипа.ToString()).Single();
                 var clientTask = App.SupabaseClient.From<Пользователь>().Select("*").Filter("id", Operator.Equals, orderResponse.IdКлиента.ToString()).Single();
@@ -85,6 +95,28 @@ namespace ChickenAndPoint
                 var type = typeTask.Result;
                 var client = clientTask.Result;
                 var allItemsResponse = allItemsTask.Result;
+
+                Guid cancelledId = Guid.Empty;
+                Guid completedId = Guid.Empty;
+                bool configReadOk = true;
+
+                try
+                {
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["CancelledStatusUUID"], out cancelledId))
+                    {
+                        MessageBox.Show("Не удалось прочитать CancelledStatusUUID из App.config.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        configReadOk = false;
+                    }
+                    if (!Guid.TryParse(ConfigurationManager.AppSettings["CompletedStatusUUID"], out completedId))
+                    {
+                        MessageBox.Show("Не удалось прочитать CompletedStatusUUID из App.config.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception configEx)
+                {
+                    MessageBox.Show($"Ошибка чтения конфигурации статусов: {configEx.Message}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                    configReadOk = false;
+                }
 
                 TitleTextBlock.Text = $"Заказ № {orderResponse.НомерЗаказа ?? _orderId.ToString("N").Substring(0, 6)}";
                 StatusTextBlock.Text = status?.НазваниеСтатуса ?? "Неизвестен";
@@ -108,6 +140,19 @@ namespace ChickenAndPoint
                 TotalSumTextBlock.Text = orderResponse.ИтоговаяСумма.HasValue
                                         ? orderResponse.ИтоговаяСумма.Value.ToString("N2", CultureInfo.InvariantCulture) + " ₽"
                                         : "- ₽";
+
+                if (configReadOk && cancelledId != Guid.Empty && (_currentOrderStatusId == cancelledId || (completedId != Guid.Empty && _currentOrderStatusId == completedId)))
+                {
+                    CancelOrderButton.IsEnabled = false;
+                }
+                else if (configReadOk && cancelledId != Guid.Empty)
+                {
+                    CancelOrderButton.IsEnabled = true;
+                }
+                else
+                {
+                    CancelOrderButton.IsEnabled = false;
+                }
 
                 List<СоставЗаказа> relevantItems = new List<СоставЗаказа>();
                 if (allItemsResponse?.Models != null)
@@ -149,7 +194,6 @@ namespace ChickenAndPoint
                 }
 
                 OrderItemsList.ItemsSource = itemVMs;
-
                 if (!itemVMs.Any())
                 {
                     LoadingStatusText.Text = "Состав заказа пуст.";
@@ -168,6 +212,75 @@ namespace ChickenAndPoint
             }
         }
 
+
+        private async void CancelOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+            Guid targetStatusId = Guid.Empty;
+            try
+            {
+                if (!Guid.TryParse(ConfigurationManager.AppSettings["CancelledStatusUUID"], out targetStatusId) || targetStatusId == Guid.Empty)
+                {
+                    MessageBox.Show("Не удалось прочитать ID статуса 'Отменен' из App.config. Отмена невозможна.", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
+            catch (Exception configEx)
+            {
+                MessageBox.Show($"Ошибка чтения конфигурации статусов: {configEx.Message}", "Ошибка конфигурации", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Guid completedId = Guid.Empty;
+            Guid.TryParse(ConfigurationManager.AppSettings["CompletedStatusUUID"], out completedId);
+
+            if (_currentOrderStatusId == targetStatusId || (completedId != Guid.Empty && _currentOrderStatusId == completedId))
+            {
+                MessageBox.Show("Заказ уже отменен или выполнен.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                CancelOrderButton.IsEnabled = false;
+                return;
+            }
+
+
+            MessageBoxResult confirm = MessageBox.Show($"Вы уверены, что хотите отменить заказ № {TitleTextBlock.Text.Split('№').LastOrDefault()?.Trim()}?",
+                                                    "Подтверждение отмены", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            CancelOrderButton.IsEnabled = false;
+            CloseButton.IsEnabled = false;
+            this.Cursor = Cursors.Wait;
+
+            try
+            {
+                if (App.SupabaseClient == null) throw new InvalidOperationException("Клиент Supabase не инициализирован.");
+
+                await App.SupabaseClient.From<Заказы>()
+                          .Where(o => o.Id == _orderId)
+                          .Set(o => o.IdСтатуса, targetStatusId)
+                          .Update();
+
+                MessageBox.Show("Заказ успешно отменен.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                var newStatus = await App.SupabaseClient.From<СтатусЗаказа>().Select("название_статуса").Filter("id", Operator.Equals, targetStatusId.ToString()).Single();
+                StatusTextBlock.Text = newStatus?.НазваниеСтатуса ?? "Отменен";
+                _currentOrderStatusId = targetStatusId;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при отмене заказа: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (_currentOrderStatusId != targetStatusId && !(completedId != Guid.Empty && _currentOrderStatusId == completedId))
+                {
+                    CancelOrderButton.IsEnabled = true;
+                }
+            }
+            finally
+            {
+                CloseButton.IsEnabled = true;
+                this.Cursor = Cursors.Arrow;
+            }
+        }
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -179,6 +292,21 @@ namespace ChickenAndPoint
             {
                 this.DragMove();
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+            storage = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }

@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace ChickenAndPoint
 {
@@ -436,6 +437,11 @@ namespace ChickenAndPoint
         private Dictionary<Guid, Блюда> _allDishesDictionaryCache = new Dictionary<Guid, Блюда>();
         private Dictionary<Guid, Категории> _allCategoriesDictionaryCache = new Dictionary<Guid, Категории>();
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        private List<OrderDisplayViewModel> _allHistoryOrders = new List<OrderDisplayViewModel>();
+        private List<KeyValuePair<Guid?, string>> _historyOrderStatusFilterSource = new List<KeyValuePair<Guid?, string>>();
+        private List<KeyValuePair<Guid?, string>> _historyOrderTypeFilterSource = new List<KeyValuePair<Guid?, string>>();
+
         public ObservableCollection<CurrentOrderViewModel> CurrentOrders
         {
             get { return _currentOrders; }
@@ -653,8 +659,17 @@ namespace ChickenAndPoint
         {
             HideAllPanels();
             OrdersHistoryPanel.Visibility = Visibility.Visible;
-            await LoadOrdersHistoryWithDetailsAsync();
+
+            if (!HistoryStartDatePicker.SelectedDate.HasValue || !HistoryEndDatePicker.SelectedDate.HasValue)
+            {
+                HistoryStartDatePicker.SelectedDate = DateTime.Today;
+                HistoryEndDatePicker.SelectedDate = DateTime.Today;
+                HistoryShowAllTimeCheckBox.IsChecked = false;
+                UpdateHistoryDatePickersEnabledState();
+            }
+            await LoadHistoryOrdersAsync();
         }
+
 
         private async void OrderActionButton_Click(object sender, RoutedEventArgs e)
         {
@@ -962,35 +977,43 @@ namespace ChickenAndPoint
 
         private void ToggleFullScreenButton_Click(object sender, RoutedEventArgs e)
         {
-            if (WindowState == WindowState.Normal)
+            if (WindowState == WindowState.Maximized && WindowStyle == WindowStyle.None)
             {
-                WindowState = WindowState.Maximized;
-                WindowStyle = WindowStyle.None;
-                ResizeMode = ResizeMode.NoResize;
-                LeftMenuPanel.Visibility = Visibility.Collapsed;
+                WindowState = WindowState.Normal;
+                WindowStyle = WindowStyle.SingleBorderWindow;
+                ResizeMode = ResizeMode.CanResize;
+
+                LeftMenuPanel.Visibility = Visibility.Visible;
+
+                Grid.SetColumn(MainContentAreaGrid, 1);
+                Grid.SetColumnSpan(MainContentAreaGrid, 1);
 
                 ToggleFullScreenButton.Content = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
                     Children = {
-                        new MaterialDesignThemes.Wpf.PackIcon { Kind = MaterialDesignThemes.Wpf.PackIconKind.FullscreenExit, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,10,0) },
-                        new TextBlock { Text = "Свернуть", VerticalAlignment = VerticalAlignment.Center }
+                        new MaterialDesignThemes.Wpf.PackIcon { Kind = MaterialDesignThemes.Wpf.PackIconKind.Fullscreen, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,5,0), Width=25, Height=25 },
+                        new TextBlock { Text = "Во весь экран", VerticalAlignment = VerticalAlignment.Center }
                        }
                 };
             }
             else
             {
-                WindowState = WindowState.Normal;
-                WindowStyle = WindowStyle.SingleBorderWindow;
-                ResizeMode = ResizeMode.CanResize;
-                LeftMenuPanel.Visibility = Visibility.Visible;
+                WindowState = WindowState.Maximized;
+                WindowStyle = WindowStyle.None;
+                ResizeMode = ResizeMode.NoResize;
+
+                LeftMenuPanel.Visibility = Visibility.Collapsed;
+
+                Grid.SetColumn(MainContentAreaGrid, 0);
+                Grid.SetColumnSpan(MainContentAreaGrid, 2);
 
                 ToggleFullScreenButton.Content = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
                     Children = {
-                        new MaterialDesignThemes.Wpf.PackIcon { Kind = MaterialDesignThemes.Wpf.PackIconKind.Fullscreen, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,10,0) },
-                        new TextBlock { Text = "Во весь экран", VerticalAlignment = VerticalAlignment.Center }
+                        new MaterialDesignThemes.Wpf.PackIcon { Kind = MaterialDesignThemes.Wpf.PackIconKind.FullscreenExit, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,5,0), Width=25, Height=25 },
+                        new TextBlock { Text = "Свернуть", VerticalAlignment = VerticalAlignment.Center }
                        }
                 };
             }
@@ -1007,107 +1030,6 @@ namespace ChickenAndPoint
                 FullNameTextBlock.Text = "Ошибка загрузки";
                 PhoneTextBlock.Text = "Ошибка загрузки";
             }
-        }
-
-        private async Task LoadOrdersHistoryWithDetailsAsync()
-        {
-            OrdersStatusText.Text = "Загрузка данных истории...";
-            OrdersStatusText.Visibility = Visibility.Visible;
-            OrdersDataGrid.ItemsSource = null;
-            _allLoadedOrders.Clear();
-            _clientNamesDictionary.Clear();
-            _statusNamesDictionary.Clear();
-            _typeNamesDictionary.Clear();
-
-            StatusFilterComboBox.ItemsSource = null;
-            TypeFilterComboBox.ItemsSource = null;
-
-            try
-            {
-                if (App.SupabaseClient == null)
-                {
-                    OrdersStatusText.Text = "Ошибка: Клиент Supabase не инициализирован.";
-                    return;
-                }
-
-                var statusesTask = App.SupabaseClient.From<СтатусЗаказа>().Select("*").Get();
-                var typesTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Get();
-                await Task.WhenAll(statusesTask, typesTask);
-
-                var statusesResponse = statusesTask.Result;
-                if (statusesResponse?.Models != null)
-                {
-                    _statusNamesDictionary = statusesResponse.Models.ToDictionary(s => s.Id, s => s.НазваниеСтатуса ?? "?");
-                    PopulateFilterComboBox(StatusFilterComboBox, _statusNamesDictionary, "статусы");
-                }
-                else { OrdersStatusText.Text = "Ошибка: Не удалось загрузить статусы."; }
-
-                var typesResponse = typesTask.Result;
-                if (typesResponse?.Models != null)
-                {
-                    _typeNamesDictionary = typesResponse.Models.ToDictionary(t => t.Id, t => t.НазваниеТипа ?? "?");
-                    PopulateFilterComboBox(TypeFilterComboBox, _typeNamesDictionary, "типы");
-                }
-                else { OrdersStatusText.Text = "Ошибка: Не удалось загрузить типы."; }
-
-                var ordersResponse = await App.SupabaseClient.From<Заказы>().Select("*").Get();
-
-                if (ordersResponse?.Models == null || !ordersResponse.Models.Any())
-                {
-                    OrdersStatusText.Text = "История заказов пуста.";
-                    _allLoadedOrders = new List<OrderDisplayViewModel>();
-                    ApplyFilters();
-                    OrdersStatusText.Visibility = Visibility.Collapsed;
-                    return;
-                }
-
-                var orders = ordersResponse.Models;
-                var clientIds = orders.Select(o => o.IdКлиента.ToString()).Distinct().ToList();
-
-                if (clientIds.Any())
-                {
-                    var usersResponse = await App.SupabaseClient.From<Пользователь>().Select("*").Filter("id", Operator.In, clientIds).Get();
-                    if (usersResponse?.Models != null)
-                        _clientNamesDictionary = usersResponse.Models.ToDictionary(u => u.Id, u => u.ПолноеИмя ?? "Имя не указано");
-                }
-
-                var viewModels = orders.Select(order => new OrderDisplayViewModel
-                {
-                    Id = order.Id,
-                    НомерЗаказа = order.НомерЗаказа ?? "-",
-                    ИмяКлиента = _clientNamesDictionary.TryGetValue(order.IdКлиента, out string clientName) ? clientName : "Клиент (?)",
-                    НазваниеСтатуса = _statusNamesDictionary.TryGetValue(order.IdСтатуса, out string statusName) ? statusName : "Статус (?)",
-                    НазваниеТипа = _typeNamesDictionary.TryGetValue(order.IdТипа, out string typeName) ? typeName : "Тип (?)",
-                    АдресДоставки = order.АдресДоставки ?? "---",
-                    ИтоговаяСумма = order.ИтоговаяСумма,
-                    ВремяСоздания = order.ВремяСоздания,
-                    ВремяОбновления = order.ВремяОбновления,
-                    IdСтатуса = order.IdСтатуса,
-                    IdТипа = order.IdТипа
-                }).ToList();
-
-                var sortedViewModels = viewModels.OrderByDescending(vm => vm.ВремяСоздания).ToList();
-                _allLoadedOrders = sortedViewModels;
-                ApplyFilters();
-                OrdersStatusText.Visibility = Visibility.Collapsed;
-            }
-            catch (Exception ex)
-            {
-                OrdersStatusText.Text = $"Ошибка загрузки истории: {ex.Message}";
-                MessageBox.Show($"Ошибка загрузки истории заказов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                _allLoadedOrders = new List<OrderDisplayViewModel>();
-                ApplyFilters();
-            }
-        }
-
-        private void PopulateFilterComboBox(ComboBox comboBox, Dictionary<Guid, string> dataSource, string typeName)
-        {
-            var items = new List<KeyValuePair<Guid, string>> {
-                new KeyValuePair<Guid, string>(Guid.Empty, $"[Все {typeName}]")
-            };
-            items.AddRange(dataSource.OrderBy(kvp => kvp.Value).ToList());
-            comboBox.ItemsSource = items;
-            comboBox.SelectedIndex = 0;
         }
 
         private void HideAllPanels()
@@ -1151,38 +1073,178 @@ namespace ChickenAndPoint
             }
         }
 
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async Task LoadHistoryOrdersAsync()
         {
-            if (this.IsLoaded && OrdersHistoryPanel.IsVisible)
+            HistoryOrdersStatusText.Text = "Загрузка истории заказов...";
+            HistoryOrdersStatusText.Visibility = Visibility.Visible;
+            HistoryOrdersDataGrid.ItemsSource = null;
+            _allHistoryOrders.Clear();
+            _historyOrderStatusFilterSource.Clear();
+            _historyOrderTypeFilterSource.Clear();
+
+            HistoryStatusFilterComboBox.ItemsSource = null;
+            HistoryTypeFilterComboBox.ItemsSource = null;
+
+            try
             {
-                ApplyFilters();
+                if (App.SupabaseClient == null)
+                {
+                    HistoryOrdersStatusText.Text = "Ошибка: Клиент Supabase не инициализирован.";
+                    return;
+                }
+
+                bool needToLoadDictionaries = !_statusNamesDictionary.Any() || !_typeNamesDictionary.Any();
+                if (needToLoadDictionaries)
+                {
+                    var statusesTask = App.SupabaseClient.From<СтатусЗаказа>().Select("*").Get();
+                    var typesTask = App.SupabaseClient.From<ТипЗаказа>().Select("*").Get();
+                    await Task.WhenAll(statusesTask, typesTask);
+
+                    var statusesResponse = statusesTask.Result;
+                    if (statusesResponse?.Models != null)
+                    {
+                        _statusNamesDictionary = statusesResponse.Models.ToDictionary(s => s.Id, s => s.НазваниеСтатуса ?? "?");
+                    }
+                    else { HistoryOrdersStatusText.Text = "Ошибка: Не удалось загрузить статусы."; }
+
+
+                    var typesResponse = typesTask.Result;
+                    if (typesResponse?.Models != null)
+                    {
+                        _typeNamesDictionary = typesResponse.Models.ToDictionary(t => t.Id, t => t.НазваниеТипа ?? "?");
+                    }
+                    else { HistoryOrdersStatusText.Text = "Ошибка: Не удалось загрузить типы."; }
+                }
+                PopulateHistoryFilterComboBox(HistoryStatusFilterComboBox, _statusNamesDictionary, "статусы", ref _historyOrderStatusFilterSource);
+                PopulateHistoryFilterComboBox(HistoryTypeFilterComboBox, _typeNamesDictionary, "типы", ref _historyOrderTypeFilterSource);
+
+                var ordersResponse = await App.SupabaseClient.From<Заказы>().Select("*").Get();
+
+                if (ordersResponse?.Models == null || !ordersResponse.Models.Any())
+                {
+                    HistoryOrdersStatusText.Text = "История заказов пуста.";
+                    _allHistoryOrders = new List<OrderDisplayViewModel>();
+                    ApplyHistoryOrderFilters();
+                    return;
+                }
+
+                var orders = ordersResponse.Models;
+                var clientIds = orders.Select(o => o.IdКлиента).Distinct().ToList();
+
+                bool needToLoadClients = false;
+                if (_clientNamesDictionary == null || !_clientNamesDictionary.Any()) needToLoadClients = true;
+                else
+                {
+                    foreach (var id in clientIds)
+                    {
+                        if (!_clientNamesDictionary.ContainsKey(id))
+                        {
+                            needToLoadClients = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (needToLoadClients && clientIds.Any())
+                {
+                    var clientIdsStr = clientIds.Select(id => id.ToString()).ToList();
+                    Debug.WriteLine($"Loading clients for history orders: {string.Join(",", clientIdsStr)}");
+                    var usersResponse = await App.SupabaseClient.From<Пользователь>()
+                       .Select("*")
+                       .Filter("id", Operator.In, clientIdsStr)
+                       .Get();
+                    if (usersResponse?.Models != null)
+                    {
+                        foreach (var user in usersResponse.Models)
+                        {
+                            _clientNamesDictionary[user.Id] = user.ПолноеИмя ?? "Имя не указано";
+                        }
+                    }
+                    else { Debug.WriteLine("Failed to load client names for history orders."); }
+                }
+
+                var viewModels = orders.Select(order => new OrderDisplayViewModel
+                {
+                    Id = order.Id,
+                    НомерЗаказа = order.НомерЗаказа ?? "-",
+                    ИмяКлиента = _clientNamesDictionary.TryGetValue(order.IdКлиента, out string clientName) ? clientName : "Клиент (?)",
+                    НазваниеСтатуса = _statusNamesDictionary.TryGetValue(order.IdСтатуса, out string statusName) ? statusName : "Статус (?)",
+                    НазваниеТипа = _typeNamesDictionary.TryGetValue(order.IdТипа, out string typeName) ? typeName : "Тип (?)",
+                    АдресДоставки = string.IsNullOrWhiteSpace(order.АдресДоставки) ?
+                                    (_typeNamesDictionary.TryGetValue(order.IdТипа, out string tName) ? tName : "Тип (?)")
+                                    : order.АдресДоставки,
+                    ИтоговаяСумма = order.ИтоговаяСумма,
+                    ВремяСоздания = order.ВремяСоздания,
+                    ВремяОбновления = order.ВремяОбновления,
+                    IdСтатуса = order.IdСтатуса,
+                    IdТипа = order.IdТипа
+                }).ToList();
+
+                var sortedViewModels = viewModels.OrderByDescending(vm => vm.ВремяСоздания).ToList();
+                _allHistoryOrders = sortedViewModels;
+                ApplyHistoryOrderFilters();
+
+            }
+            catch (Exception ex)
+            {
+                HistoryOrdersStatusText.Text = $"Ошибка загрузки истории: {ex.Message}";
+                HistoryOrdersStatusText.Visibility = Visibility.Visible;
+                MessageBox.Show($"Ошибка загрузки истории заказов: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                _allHistoryOrders = new List<OrderDisplayViewModel>();
+                ApplyHistoryOrderFilters();
             }
         }
-
-        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void PopulateHistoryFilterComboBox(ComboBox comboBox, Dictionary<Guid, string> dataSource, string typeName, ref List<KeyValuePair<Guid?, string>> filterSourceList)
         {
-            if (this.IsLoaded && OrdersHistoryPanel.IsVisible && e.AddedItems.Count > 0)
-            {
-                ApplyFilters();
-            }
+
+            filterSourceList.Clear();
+            filterSourceList.Add(new KeyValuePair<Guid?, string>(null, $"[Все {typeName}]"));
+            filterSourceList.AddRange(dataSource.OrderBy(kvp => kvp.Value)
+                                                .Select(kvp => new KeyValuePair<Guid?, string>(kvp.Key, kvp.Value)));
+            comboBox.ItemsSource = filterSourceList;
+            comboBox.SelectedIndex = 0;
         }
 
-        private void ApplyFilters()
+        private void ApplyHistoryOrderFilters()
         {
-            if (_allLoadedOrders == null) return;
+            if (_allHistoryOrders == null) return;
 
-            IEnumerable<OrderDisplayViewModel> filteredList = _allLoadedOrders;
+            IEnumerable<OrderDisplayViewModel> filteredList = _allHistoryOrders;
 
-            if (StatusFilterComboBox.SelectedValue is Guid selectedStatusId && selectedStatusId != Guid.Empty)
+            Guid? selectedStatusId = null;
+            if (HistoryStatusFilterComboBox.SelectedValue is Guid statusGuid) selectedStatusId = statusGuid;
+            if (selectedStatusId.HasValue)
             {
-                filteredList = filteredList.Where(vm => vm.IdСтатуса == selectedStatusId);
-            }
-            if (TypeFilterComboBox.SelectedValue is Guid selectedTypeId && selectedTypeId != Guid.Empty)
-            {
-                filteredList = filteredList.Where(vm => vm.IdТипа == selectedTypeId);
+                filteredList = filteredList.Where(vm => vm.IdСтатуса == selectedStatusId.Value);
             }
 
-            string searchText = SearchTextBox.Text.Trim().ToLowerInvariant();
+            Guid? selectedTypeId = null;
+            if (HistoryTypeFilterComboBox.SelectedValue is Guid typeGuid) selectedTypeId = typeGuid;
+            if (selectedTypeId.HasValue)
+            {
+                filteredList = filteredList.Where(vm => vm.IdТипа == selectedTypeId.Value);
+            }
+            bool showAllTime = HistoryShowAllTimeCheckBox.IsChecked ?? false;
+            if (!showAllTime && HistoryStartDatePicker.SelectedDate.HasValue && HistoryEndDatePicker.SelectedDate.HasValue)
+            {
+                if (HistoryStartDatePicker.SelectedDate.Value.Date <= HistoryEndDatePicker.SelectedDate.Value.Date)
+                {
+                    DateTime startDate = HistoryStartDatePicker.SelectedDate.Value.Date;
+                    DateTime endDateExclusive = HistoryEndDatePicker.SelectedDate.Value.Date.AddDays(1);
+                    DateTimeOffset startOffset = new DateTimeOffset(startDate);
+                    DateTimeOffset endOffsetExclusive = new DateTimeOffset(endDateExclusive);
+
+                    filteredList = filteredList.Where(vm =>
+                        vm.ВремяСоздания >= startOffset && vm.ВремяСоздания < endOffsetExclusive
+                    );
+                }
+                else
+                {
+                    Debug.WriteLine("Начальная дата позже конечной даты. Фильтр по дате не применен.");
+                }
+            }
+
+            string searchText = HistoryOrderSearchTextBox.Text.Trim().ToLowerInvariant();
             if (!string.IsNullOrEmpty(searchText))
             {
                 filteredList = filteredList.Where(vm =>
@@ -1190,42 +1252,138 @@ namespace ChickenAndPoint
                     (vm.ИмяКлиента?.ToLowerInvariant().Contains(searchText) ?? false) ||
                     (vm.НазваниеСтатуса?.ToLowerInvariant().Contains(searchText) ?? false) ||
                     (vm.НазваниеТипа?.ToLowerInvariant().Contains(searchText) ?? false) ||
-                    (vm.АдресДоставки?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                    (vm.АдресДоставки?.ToLowerInvariant().Contains(searchText) ?? false) || 
                     (vm.ИтоговаяСумма?.ToString("F2", CultureInfo.InvariantCulture).Contains(searchText) ?? false) ||
                     (vm.ВремяСоздания.ToString("dd.MM HH:mm", CultureInfo.InvariantCulture).Contains(searchText))
                 );
             }
 
-            OrdersDataGrid.ItemsSource = filteredList.ToList();
+            HistoryOrdersDataGrid.ItemsSource = filteredList.ToList();
 
-            if (!filteredList.Any() && _allLoadedOrders.Any())
+            if (!_allHistoryOrders.Any())
             {
-                OrdersStatusText.Text = "Заказы, соответствующие фильтрам, не найдены.";
-                OrdersStatusText.Visibility = Visibility.Visible;
+                HistoryOrdersStatusText.Text = "История заказов пуста.";
+                HistoryOrdersStatusText.Visibility = Visibility.Visible;
             }
-            else if (!_allLoadedOrders.Any() && OrdersStatusText.Text == "История заказов пуста.")
+            else if (!filteredList.Any())
             {
-                OrdersStatusText.Visibility = Visibility.Visible;
+                HistoryOrdersStatusText.Text = "Заказы, соответствующие фильтрам, не найдены.";
+                HistoryOrdersStatusText.Visibility = Visibility.Visible;
             }
-            else if (OrdersStatusText.Visibility == Visibility.Visible && OrdersStatusText.Text != "Загрузка данных истории..." && !OrdersStatusText.Text.StartsWith("Ошибка"))
+            else
             {
-                OrdersStatusText.Visibility = Visibility.Collapsed;
+                HistoryOrdersStatusText.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void ResetFiltersButton_Click(object sender, RoutedEventArgs e)
+        private void UpdateHistoryDatePickersEnabledState()
+        {
+            bool enablePickers = !(HistoryShowAllTimeCheckBox.IsChecked ?? false);
+            HistoryStartDatePicker.IsEnabled = enablePickers;
+            HistoryEndDatePicker.IsEnabled = enablePickers;
+        }
+
+
+        private void HistoryFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.IsLoaded && OrdersHistoryPanel.IsVisible && e.AddedItems.Count > 0)
+            {
+                ApplyHistoryOrderFilters();
+            }
+        }
+
+        private void HistoryDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.IsLoaded && OrdersHistoryPanel.IsVisible &&
+                HistoryStartDatePicker.SelectedDate.HasValue && HistoryEndDatePicker.SelectedDate.HasValue)
+            {
+                if (HistoryStartDatePicker.SelectedDate.Value.Date > HistoryEndDatePicker.SelectedDate.Value.Date)
+                {
+                    Debug.WriteLine("Предупреждение: Начальная дата позже конечной.");
+                    return;
+                }
+                ApplyHistoryOrderFilters();
+            }
+        }
+
+        private void HistoryShowAllTimeCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateHistoryDatePickersEnabledState();
+            if (this.IsLoaded && OrdersHistoryPanel.IsVisible)
+            {
+                ApplyHistoryOrderFilters();
+            }
+        }
+
+        private void HistoryOrderSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (this.IsLoaded && OrdersHistoryPanel.IsVisible)
+            {
+                ApplyHistoryOrderFilters();
+            }
+        }
+
+        private void HistoryResetFiltersButton_Click(object sender, RoutedEventArgs e)
         {
             bool changed = false;
-            if (StatusFilterComboBox != null && StatusFilterComboBox.SelectedIndex != 0) { StatusFilterComboBox.SelectedIndex = 0; changed = true; }
-            if (TypeFilterComboBox != null && TypeFilterComboBox.SelectedIndex != 0) { TypeFilterComboBox.SelectedIndex = 0; changed = true; }
-            if (SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text)) { SearchTextBox.Text = string.Empty; changed = true; }
+
+            if (HistoryStatusFilterComboBox != null && HistoryStatusFilterComboBox.SelectedIndex != 0)
+            {
+                HistoryStatusFilterComboBox.SelectedIndex = 0;
+                changed = true;
+            }
+            if (HistoryTypeFilterComboBox != null && HistoryTypeFilterComboBox.SelectedIndex != 0)
+            {
+                HistoryTypeFilterComboBox.SelectedIndex = 0;
+                changed = true;
+            }
+
+            bool dateChanged = false;
+            DateTime today = DateTime.Today;
+            if (HistoryStartDatePicker != null && HistoryStartDatePicker.SelectedDate != today)
+            {
+                HistoryStartDatePicker.SelectedDate = today;
+                dateChanged = true;
+            }
+            if (HistoryEndDatePicker != null && HistoryEndDatePicker.SelectedDate != today)
+            {
+                HistoryEndDatePicker.SelectedDate = today;
+                dateChanged = true;
+            }
+
+            bool checkBoxChanged = false;
+            if (HistoryShowAllTimeCheckBox != null && HistoryShowAllTimeCheckBox.IsChecked == true)
+            {
+                HistoryShowAllTimeCheckBox.IsChecked = false;
+                checkBoxChanged = true;
+            }
+
+            if (changed || (dateChanged && !checkBoxChanged))
+            {
+                ApplyHistoryOrderFilters();
+            }
+            else if (!changed && !dateChanged && !checkBoxChanged)
+            {
+                ApplyHistoryOrderFilters();
+            }
         }
 
-        private void ResetSearchButton_Click(object sender, RoutedEventArgs e)
+
+        private void HistoryResetSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchTextBox != null && !string.IsNullOrEmpty(SearchTextBox.Text))
+            if (HistoryOrderSearchTextBox != null && !string.IsNullOrEmpty(HistoryOrderSearchTextBox.Text))
             {
-                SearchTextBox.Text = string.Empty;
+                HistoryOrderSearchTextBox.Text = string.Empty;
+            }
+        }
+
+        private void HistoryOrderDetailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Guid orderId)
+            {
+                OrderDetailsWindow detailsWindow = new OrderDetailsWindow(orderId);
+                detailsWindow.Owner = this;
+                detailsWindow.ShowDialog();
             }
         }
 

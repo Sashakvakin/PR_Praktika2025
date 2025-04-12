@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\App.xaml
-13258910985
+141540939727
 
-26-775591720
+27-62942398
 471691513614
-AddCategoryFoodWindow.xaml;AddFoodWindow.xaml;AddNewUser.xaml;AdminMainWindow.xaml;CategoryIconSelectorWindow.xaml;EditFoodWindow.xaml;EditUserInfo.xaml;FoodImageWindow.xaml;LoginWindow.xaml;MainWindow.xaml;OrderAllInformationWindow.xaml;OrderDetailsWindow.xaml;SotrydnikMainWindow.xaml;
+AddCategoryFoodWindow.xaml;AddFoodWindow.xaml;AddNewUser.xaml;AdminMainWindow.xaml;CategoryIconSelectorWindow.xaml;EditCategoryFoodWindow.xaml;EditFoodWindow.xaml;EditUserInfo.xaml;FoodImageWindow.xaml;LoginWindow.xaml;MainWindow.xaml;OrderAllInformationWindow.xaml;OrderDetailsWindow.xaml;SotrydnikMainWindow.xaml;
 
 True
 

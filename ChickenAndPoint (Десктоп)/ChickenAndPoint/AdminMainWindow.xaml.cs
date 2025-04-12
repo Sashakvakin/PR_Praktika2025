@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Configuration;
+using Postgrest.Exceptions;
 
 namespace ChickenAndPoint.Admin
 {
@@ -138,7 +139,7 @@ namespace ChickenAndPoint.Admin
                             }
                             DishImageSource = bitmap;
                         }
-                        catch (Exception ex)
+                        catch
                         {
                         }
                     });
@@ -155,17 +156,7 @@ namespace ChickenAndPoint.Admin
                 byte[] imageData = await httpClient.GetByteArrayAsync(url);
                 return imageData;
             }
-            catch (HttpRequestException httpEx)
-            {
-                Application.Current?.Dispatcher.InvokeAsync(() => {
-                    if (!FailedUrls.Contains(url))
-                    {
-                        FailedUrls.Add(url);
-                    }
-                });
-                return null;
-            }
-            catch (Exception ex) 
+            catch
             {
                  Application.Current?.Dispatcher.InvokeAsync(() => {
                       if (!FailedUrls.Contains(url))
@@ -278,11 +269,12 @@ namespace ChickenAndPoint.Admin
             UsersPanel.Visibility = Visibility.Collapsed;
             DishesPanel.Visibility = Visibility.Collapsed;
             OrdersPanel.Visibility = Visibility.Collapsed;
-            OrderTypesPanel.Visibility = Visibility.Collapsed;
-            OrderStatusesPanel.Visibility = Visibility.Collapsed;
+            CategoriesPanel.Visibility = Visibility.Collapsed;
 
             EditUserButton.IsEnabled = false;
             DeleteUserButton.IsEnabled = false;
+            EditCategoryButton.IsEnabled = false;
+            DeleteCategoryButton.IsEnabled = false;
 
             switch (sectionName)
             {
@@ -302,13 +294,9 @@ namespace ChickenAndPoint.Admin
                     OrdersPanel.Visibility = Visibility.Visible;
                     await LoadAdminOrdersAsync();
                     break;
-                case "ТипыЗаказов":
-                    OrderTypesPanel.Visibility = Visibility.Visible;
-                    // await LoadOrderTypesAsync();
-                    break;
-                case "СтатусыЗаказов":
-                    OrderStatusesPanel.Visibility = Visibility.Visible;
-                    // await LoadOrderStatusesAsync();
+                case "Категории":
+                    CategoriesPanel.Visibility = Visibility.Visible;
+                    await LoadCategoriesForManagementAsync();
                     break;
                 default:
                     ProfilePanel.Visibility = Visibility.Visible;
@@ -581,6 +569,15 @@ namespace ChickenAndPoint.Admin
 
         private async Task LoadDishesAsync()
         {
+            DishAdminViewModel.ClearImageCache();
+
+            if (_allLoadedDishes.Any() && _categoryNamesCache.Any())
+            {
+                System.Diagnostics.Debug.WriteLine("[LoadDishesAsync] Using cached dishes and category names.");
+                foreach (var vm in _allLoadedDishes) { _ = vm.LoadImageAsync(); }
+                ApplyDishFilter();
+                return;
+            }
 
             DishesLoadingStatus.Text = "Загрузка блюд...";
             DishesLoadingStatus.Visibility = Visibility.Visible;
@@ -589,10 +586,6 @@ namespace ChickenAndPoint.Admin
             DishesItemsControl.Visibility = Visibility.Collapsed;
 
             bool categoriesLoaded = await LoadAndPopulateCategoriesFilterAsync();
-            if (!categoriesLoaded)
-            {
-                MessageBox.Show("Не удалось загрузить категории для фильтра.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
 
             try
             {
@@ -604,32 +597,40 @@ namespace ChickenAndPoint.Admin
                     return;
                 }
 
-                if (_categoryNamesCache.Count == 0 && categoriesLoaded)
+                if (_categoryNamesCache.Count == 0)
                 {
+                    System.Diagnostics.Debug.WriteLine("[LoadDishesAsync] Category name cache is empty, loading...");
                     var categoriesResponse = await App.SupabaseClient.From<Категории>().Select("*").Get();
                     if (categoriesResponse?.Models != null)
                     {
                         _categoryNamesCache = categoriesResponse.Models.ToDictionary(c => c.Id, c => c.НазваниеКатегории ?? "?");
+                        System.Diagnostics.Debug.WriteLine($"[LoadDishesAsync] Category name cache loaded with {_categoryNamesCache.Count} items.");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Не удалось загрузить справочник категорий при обновлении блюд.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
 
+                System.Diagnostics.Debug.WriteLine("[LoadDishesAsync] Loading dishes from DB...");
                 var dishesResponse = await App.SupabaseClient.From<Блюда>().Select("*").Get();
 
                 if (dishesResponse?.Models != null)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[LoadDishesAsync] Loaded {dishesResponse.Models.Count} dishes from DB.");
                     _allLoadedDishes = dishesResponse.Models
-                        .OrderBy(d => d.НазваниеБлюда)
-                        .Select(dish => new DishAdminViewModel
-                        {
-                            Id = dish.Id,
-                            IdКатегории = dish.IdКатегории,
-                            НазваниеБлюда = dish.НазваниеБлюда,
-                            Описание = dish.Описание,
-                            Цена = dish.Цена,
-                            СсылкаНаИзображение = dish.СсылкаНаИзображение,
-                            Доступно = dish.Доступно,
-                            НазваниеКатегории = _categoryNamesCache.TryGetValue(dish.IdКатегории, out string catName) ? catName : "???"
-                        }).ToList();
+                       .OrderBy(d => d.НазваниеБлюда)
+                       .Select(dish => new DishAdminViewModel
+                       {
+                           Id = dish.Id,
+                           IdКатегории = dish.IdКатегории,
+                           НазваниеБлюда = dish.НазваниеБлюда,
+                           Описание = dish.Описание,
+                           Цена = dish.Цена,
+                           СсылкаНаИзображение = dish.СсылкаНаИзображение,
+                           Доступно = dish.Доступно,
+                           НазваниеКатегории = _categoryNamesCache.TryGetValue(dish.IdКатегории, out string catName) ? catName : "???"
+                       }).ToList();
 
                     foreach (var vm in _allLoadedDishes)
                     {
@@ -639,6 +640,7 @@ namespace ChickenAndPoint.Admin
                 else
                 {
                     DishesLoadingStatus.Text = "Не удалось загрузить блюда.";
+                    System.Diagnostics.Debug.WriteLine("[LoadDishesAsync] Failed to load dishes from DB.");
                 }
             }
             catch (Exception ex)
@@ -656,7 +658,6 @@ namespace ChickenAndPoint.Admin
         {
             if (_categoryFilterSource.Any()) return true;
 
-            _categoryNamesCache.Clear();
             _categoryFilterSource.Clear();
 
             try
@@ -673,14 +674,19 @@ namespace ChickenAndPoint.Admin
 
                     foreach (var category in sortedCategories)
                     {
-                        _categoryNamesCache[category.Id] = category.НазваниеКатегории ?? "???";
+                        if (!_categoryNamesCache.ContainsKey(category.Id))
+                        {
+                            _categoryNamesCache[category.Id] = category.НазваниеКатегории ?? "???";
+                        }
                         _categoryFilterSource.Add(new KeyValuePair<Guid?, string>(category.Id, category.НазваниеКатегории ?? "???"));
                     }
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine("Не удалось загрузить категории или список пуст для фильтра.");
                 }
 
+                DishCategoryFilterComboBox.ItemsSource = null;
                 DishCategoryFilterComboBox.ItemsSource = _categoryFilterSource;
                 DishCategoryFilterComboBox.SelectedIndex = 0;
                 return true;
@@ -688,12 +694,8 @@ namespace ChickenAndPoint.Admin
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки категорий для фильтра: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                if (!_categoryFilterSource.Any())
-                {
-                    _categoryFilterSource.Add(new KeyValuePair<Guid?, string>(null, "[ Все категории ]"));
-                    DishCategoryFilterComboBox.ItemsSource = _categoryFilterSource;
-                    DishCategoryFilterComboBox.SelectedIndex = 0;
-                }
+                if (!_categoryFilterSource.Any(kvp => kvp.Key == null)) { _categoryFilterSource.Insert(0, new KeyValuePair<Guid?, string>(null, "[ Все категории ]")); }
+                DishCategoryFilterComboBox.ItemsSource = null; DishCategoryFilterComboBox.ItemsSource = _categoryFilterSource; DishCategoryFilterComboBox.SelectedIndex = 0;
                 return false;
             }
         }
@@ -703,29 +705,24 @@ namespace ChickenAndPoint.Admin
             if (_allLoadedDishes == null) _allLoadedDishes = new List<DishAdminViewModel>();
             if (_dishViewModels == null) _dishViewModels = new ObservableCollection<DishAdminViewModel>();
 
-            Guid? selectedCategoryId = null;
-            if (DishCategoryFilterComboBox.SelectedValue is Guid guidValue)
+            IEnumerable<DishAdminViewModel> filteredList = _allLoadedDishes;
+
+            Guid? selectedFilterComboBoxCategoryId = null;
+            if (DishCategoryFilterComboBox.SelectedValue is Guid guidValue) selectedFilterComboBoxCategoryId = guidValue;
+            if (selectedFilterComboBoxCategoryId.HasValue)
             {
-                selectedCategoryId = guidValue;
+                filteredList = filteredList.Where(dish => dish.IdКатегории == selectedFilterComboBoxCategoryId.Value);
             }
 
             string searchText = DishSearchTextBox.Text.Trim().ToLowerInvariant();
-
-            IEnumerable<DishAdminViewModel> filteredList = _allLoadedDishes;
-
-            if (selectedCategoryId.HasValue)
-            {
-                filteredList = filteredList.Where(dish => dish.IdКатегории == selectedCategoryId.Value);
-            }
-
             if (!string.IsNullOrEmpty(searchText))
             {
                 filteredList = filteredList.Where(dish =>
-                    (dish.НазваниеБлюда?.ToLowerInvariant().Contains(searchText) ?? false) ||
-                    (dish.Описание?.ToLowerInvariant().Contains(searchText) ?? false) ||
-                    (dish.НазваниеКатегории?.ToLowerInvariant().Contains(searchText) ?? false) ||
-                    (dish.Цена.ToString(CultureInfo.InvariantCulture).Contains(searchText))
-                );
+                   (dish.НазваниеБлюда?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                   (dish.Описание?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                   (dish.НазваниеКатегории?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                   (dish.Цена.ToString(CultureInfo.InvariantCulture).Contains(searchText))
+               );
             }
 
             _dishViewModels.Clear();
@@ -734,6 +731,11 @@ namespace ChickenAndPoint.Admin
                 _dishViewModels.Add(dish);
             }
 
+            UpdateDishesLoadingStatus(filteredList);
+        }
+
+        private void UpdateDishesLoadingStatus(IEnumerable<DishAdminViewModel> filteredList)
+        {
             if (!_allLoadedDishes.Any())
             {
                 if (DishesLoadingStatus.Text == "Загрузка блюд...") DishesLoadingStatus.Text = "Список блюд пуст.";
@@ -752,7 +754,6 @@ namespace ChickenAndPoint.Admin
                 DishesItemsControl.Visibility = Visibility.Visible;
             }
         }
-
         private void DishSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (this.IsLoaded && DishesPanel.IsVisible)
@@ -771,18 +772,21 @@ namespace ChickenAndPoint.Admin
 
         private void ResetDishSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            bool changed = false;
+            bool textChanged = false;
+            bool categoryComboBoxChanged = false;
+
             if (DishSearchTextBox.Text != string.Empty)
             {
                 DishSearchTextBox.Text = string.Empty;
-                changed = true;
+                textChanged = true;
             }
-            if (DishCategoryFilterComboBox.SelectedIndex != 0)
+            if (DishCategoryFilterComboBox != null && DishCategoryFilterComboBox.SelectedIndex != 0)
             {
                 DishCategoryFilterComboBox.SelectedIndex = 0;
-                changed = true;
+                categoryComboBoxChanged = true;
             }
-            if (!changed)
+
+            if (!textChanged && !categoryComboBoxChanged)
             {
                 ApplyDishFilter();
             }
@@ -1110,6 +1114,164 @@ namespace ChickenAndPoint.Admin
             if (AdminOrderSearchTextBox != null)
             {
                 AdminOrderSearchTextBox.Text = string.Empty;
+            }
+        }
+        private async Task LoadCategoriesForManagementAsync()
+        {
+            CategoriesLoadingStatus.Text = "Загрузка категорий...";
+            CategoriesLoadingStatus.Visibility = Visibility.Visible;
+            CategoriesDataGrid.ItemsSource = null;
+            CategoriesDataGrid.Visibility = Visibility.Collapsed;
+            EditCategoryButton.IsEnabled = false;
+            DeleteCategoryButton.IsEnabled = false;
+
+            try
+            {
+                if (App.SupabaseClient == null)
+                {
+                    CategoriesLoadingStatus.Text = "Клиент Supabase не инициализирован.";
+                    MessageBox.Show(CategoriesLoadingStatus.Text, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var categoriesResponse = await App.SupabaseClient.From<Категории>().Select("*").Get();
+
+                if (categoriesResponse?.Models != null)
+                {
+                    if (!categoriesResponse.Models.Any())
+                    {
+                        CategoriesLoadingStatus.Text = "Список категорий пуст.";
+                        CategoriesDataGrid.ItemsSource = new List<Категории>();
+                    }
+                    else
+                    {
+                        var sortedCategories = categoriesResponse.Models.OrderBy(c => c.НазваниеКатегории).ToList();
+                        CategoriesDataGrid.ItemsSource = sortedCategories;
+                        CategoriesLoadingStatus.Visibility = Visibility.Collapsed;
+                        CategoriesDataGrid.Visibility = Visibility.Visible;
+                    }
+                }
+                else
+                {
+                    CategoriesLoadingStatus.Text = "Не удалось загрузить категории.";
+                }
+            }
+            catch (Exception ex)
+            {
+                CategoriesLoadingStatus.Text = $"Ошибка загрузки категорий: {ex.Message}";
+                MessageBox.Show(CategoriesLoadingStatus.Text, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                CategoriesDataGrid.ItemsSource = new List<Категории>();
+            }
+            finally
+            {
+                if (CategoriesDataGrid.ItemsSource != null && (CategoriesDataGrid.ItemsSource as System.Collections.IList)?.Count > 0)
+                {
+                    CategoriesLoadingStatus.Visibility = Visibility.Collapsed;
+                    CategoriesDataGrid.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    CategoriesDataGrid.Visibility = Visibility.Collapsed;
+                    CategoriesLoadingStatus.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void CategoriesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            bool isSelected = CategoriesDataGrid.SelectedItem != null;
+            EditCategoryButton.IsEnabled = isSelected;
+            DeleteCategoryButton.IsEnabled = isSelected;
+        }
+
+        private async void AddCategory_Click(object sender, RoutedEventArgs e)
+        {
+            var addCategoryWindow = new AddCategoryFoodWindow();
+            addCategoryWindow.Owner = this;
+            bool? result = addCategoryWindow.ShowDialog();
+            if (result == true)
+            {
+                await LoadCategoriesForManagementAsync();
+            }
+        }
+
+        private async void EditCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (CategoriesDataGrid.SelectedItem is Категории selectedCategory)
+            {
+                var editWindow = new EditCategoryFoodWindow(selectedCategory);
+                editWindow.Owner = this;
+                bool? result = editWindow.ShowDialog();
+
+                if (result == true)
+                {
+                    _categoryNamesCache.Clear();
+                    _categoryFilterSource.Clear();
+                    _allLoadedDishes.Clear();
+                    await LoadCategoriesForManagementAsync();
+                    await LoadDishesAsync();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, выберите категорию для редактирования.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async void DeleteCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (CategoriesDataGrid.SelectedItem is Категории selectedCategory)
+            {
+                MessageBoxResult confirmResult = MessageBox.Show(
+                   $"Вы уверены, что хотите удалить категорию '{selectedCategory.НазваниеКатегории}'?\n\nВНИМАНИЕ: Удаление категории невозможно, если к ней привязаны блюда!",
+                   "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (confirmResult != MessageBoxResult.Yes) return;
+
+                EditCategoryButton.IsEnabled = false;
+                DeleteCategoryButton.IsEnabled = false;
+                this.Cursor = Cursors.Wait;
+
+                try
+                {
+                    if (App.SupabaseClient == null)
+                    {
+                        MessageBox.Show("Клиент Supabase не инициализирован.", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    await App.SupabaseClient.From<Категории>()
+                               .Where(c => c.Id == selectedCategory.Id)
+                               .Delete();
+
+                    MessageBox.Show($"Категория '{selectedCategory.НазваниеКатегории}' успешно удалена.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await LoadCategoriesForManagementAsync();
+
+                }
+                catch (PostgrestException pgEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"PostgrestException during category delete: {pgEx.Message}");
+                    if (pgEx.Message.Contains("violates foreign key constraint") && pgEx.Message.Contains("Блюда_id_категории_fkey"))
+                    {
+                        MessageBox.Show($"Невозможно удалить категорию '{selectedCategory.НазваниеКатегории}', так как к ней привязаны существующие блюда.", "Ошибка удаления", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Не удалось удалить категорию: {pgEx.Message}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Произошла ошибка при удалении категории: {ex.Message}", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    if (this.IsVisible)
+                    {
+                        CategoriesDataGrid_SelectionChanged(null, null);
+                        this.Cursor = Cursors.Arrow;
+                    }
+                }
             }
         }
     }

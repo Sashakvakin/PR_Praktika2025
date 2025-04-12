@@ -265,3 +265,5 @@ C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Д
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\CategoryIconSelectorWindow.baml
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\OrderAllInformationWindow.g.cs
 C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\OrderAllInformationWindow.baml
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\EditCategoryFoodWindow.g.cs
+C:\Users\IIDom\Desktop\ПРАКТИКА МАСТЕРСОФТ\ChickenAndPoint (Десктоп)\ChickenAndPoint\obj\Debug\EditCategoryFoodWindow.baml

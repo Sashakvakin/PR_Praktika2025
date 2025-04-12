@@ -163,6 +163,9 @@
     <Compile Include="CategoryIconSelectorWindow.xaml.cs">
       <DependentUpon>CategoryIconSelectorWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EditCategoryFoodWindow.xaml.cs">
+      <DependentUpon>EditCategoryFoodWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EditFoodWindow.xaml.cs">
       <DependentUpon>EditFoodWindow.xaml</DependentUpon>
     </Compile>
@@ -204,6 +207,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CategoryIconSelectorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EditCategoryFoodWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

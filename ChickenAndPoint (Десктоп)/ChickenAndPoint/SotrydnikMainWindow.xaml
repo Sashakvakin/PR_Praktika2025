@@ -120,36 +120,71 @@
             </Style.Triggers>
         </Style>
 
+        <Style TargetType="Button" x:Key="EmployeeMenuButtonStyle" BasedOn="{StaticResource MaterialDesignFlatButton}">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Margin" Value="8,4,8,4"/>
+            <Setter Property="materialDesign:RippleAssist.Feedback" Value="{DynamicResource MaterialDesignFlatButtonRipple}"/>
+        </Style>
+        <Style TargetType="materialDesign:PackIcon" x:Key="EmployeeMenuIconStyle">
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="EmployeeMenuTextStyle">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="180"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel x:Name="LeftMenuPanel" Grid.Column="0" Background="{DynamicResource PrimaryHueMidBrush}" Width="190">
-            <Button x:Name="ProfileButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="Профиль">
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="Профиль" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="CurrentOrdersButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="ТекущиеЗаказы">
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="ClockFast" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="Текущие заказы" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
-            <Button x:Name="OrdersHistoryButton" Style="{StaticResource MaterialDesignFlatButton}" Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" Height="50" Margin="10" Click="MenuButton_Click" Tag="ИсторияЗаказов">
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="History" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="История заказов" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
+        <Border Grid.Column="0" Name="LeftMenuPanel" Background="{DynamicResource PrimaryHueMidBrush}" CornerRadius="0,5,5,0" >
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top">
+                    <Button x:Name="ProfileButton" Style="{StaticResource EmployeeMenuButtonStyle}" Click="MenuButton_Click" Tag="Профиль" Margin="0 5 0 5">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Account" Style="{StaticResource EmployeeMenuIconStyle}"/>
+                            <TextBlock Text="Профиль" Style="{StaticResource EmployeeMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
 
-        <Grid Grid.Column="1">
+                    <Border Height="2" Margin="10,0,10,0" Background="White" Opacity="0.7" CornerRadius="5" SnapsToDevicePixels="True"/>
+
+                    <Button x:Name="CurrentOrdersButton" Style="{StaticResource EmployeeMenuButtonStyle}" Click="MenuButton_Click" Tag="ТекущиеЗаказы" Margin="0 0 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ClockFast" Style="{StaticResource EmployeeMenuIconStyle}"/>
+                            <TextBlock Text="Текущие заказы" Style="{StaticResource EmployeeMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="OrdersHistoryButton" Style="{StaticResource EmployeeMenuButtonStyle}" Click="MenuButton_Click" Tag="ИсторияЗаказов" Margin="0 -5 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="History" Style="{StaticResource EmployeeMenuIconStyle}"/>
+                            <TextBlock Text="История заказов" Style="{StaticResource EmployeeMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+
+                <Button x:Name="LogoutButtonMenu" Style="{StaticResource EmployeeMenuButtonStyle}" Click="LogoutButton_Click" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Margin="8,15,8,15">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="LogoutVariant" Style="{StaticResource EmployeeMenuIconStyle}"/>
+                        <TextBlock Text="Выход" Style="{StaticResource EmployeeMenuTextStyle}"/>
+                    </StackPanel>
+                </Button>
+            </DockPanel>
+        </Border>
+
+        <Grid x:Name="MainContentAreaGrid" Grid.Column="1">
             <StackPanel x:Name="ProfilePanel" Visibility="Collapsed" Margin="20">
                 <materialDesign:Card Padding="20" Margin="10" UniformCornerRadius="10">
                     <StackPanel>
@@ -160,7 +195,6 @@
                         <TextBlock x:Name="PhoneTextBlock" Text="-" Margin="0,0,0,10" FontSize="16"/>
                     </StackPanel>
                 </materialDesign:Card>
-                <Button x:Name="LogoutButton" Content="Выход" Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Left" Margin="10,20,10,10" Width="150" Background="{DynamicResource MaterialDesignTextFieldBoxBackground}" Foreground="{DynamicResource MaterialDesignBody}" BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="1" Click="LogoutButton_Click"/>
             </StackPanel>
 
             <Grid x:Name="CurrentOrdersPanel" Visibility="Collapsed" Margin="10">
@@ -197,7 +231,7 @@
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                               Padding="5" ScrollViewer.CanContentScroll="True">
-                    <ItemsControl x:Name="CurrentOrdersItemsControl" ItemsSource="{Binding CurrentOrders}" Margin="5">
+                    <ItemsControl x:Name="CurrentOrdersItemsControl" ItemsSource="{Binding CurrentOrders}" Margin="0,0,4,0">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal" />
@@ -370,92 +404,141 @@
             <Grid x:Name="OrdersHistoryPanel" Visibility="Collapsed" Margin="10">
                 <StackPanel>
                     <TextBlock Text="История заказов" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10"/>
-                    <Border Padding="10" Margin="10,0,10,10" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0 0 0 1">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Фильтры:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Medium"/>
-                            <ComboBox x:Name="StatusFilterComboBox" Grid.Row="0" Grid.Column="1"
-                                       materialDesign:HintAssist.Hint="Статус заказа"
-                                       Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                                       Margin="5"
-                                       DisplayMemberPath="Value"
-                                       SelectedValuePath="Key"
-                                       SelectionChanged="FilterComboBox_SelectionChanged"/>
-                            <ComboBox x:Name="TypeFilterComboBox" Grid.Row="0" Grid.Column="3"
-                                       materialDesign:HintAssist.Hint="Тип заказа"
-                                       Style="{StaticResource MaterialDesignFloatingHintComboBox}"
-                                       Margin="5"
-                                       DisplayMemberPath="Value"
-                                       SelectedValuePath="Key"
-                                       SelectionChanged="FilterComboBox_SelectionChanged"/>
-                            <Button x:Name="ResetFiltersButton" Grid.Row="0" Grid.Column="4"
-                                     Content="{materialDesign:PackIcon Kind=FilterRemoveOutline}"
-                                     ToolTip="Сбросить фильтры"
-                                     Style="{StaticResource MaterialDesignToolButton}"
-                                     Margin="10,0,0,0"
-                                     VerticalAlignment="Bottom"
-                                     Click="ResetFiltersButton_Click"/>
-                            <TextBox x:Name="SearchTextBox" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4"
-                                      materialDesign:HintAssist.Hint="Поиск по всем видимым полям..."
-                                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                      Margin="0,10,5,0"
-                                      TextChanged="SearchTextBox_TextChanged"/>
-                            <Button x:Name="ResetSearchButton" Grid.Row="1" Grid.Column="4"
-                                     Content="{materialDesign:PackIcon Kind=CloseCircleOutline}"
-                                     ToolTip="Сбросить текстовый поиск"
-                                     Style="{StaticResource MaterialDesignToolButton}"
-                                     Margin="10,10,0,0"
-                                     VerticalAlignment="Bottom"
-                                     Click="ResetSearchButton_Click"/>
-                        </Grid>
+                    <Border Grid.Row="1" Padding="10,5,10,15" Margin="10,0,10,5">
+                        <StackPanel Orientation="Vertical">
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" MinWidth="200"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*" MinWidth="200"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox x:Name="HistoryStatusFilterComboBox" Grid.Column="0"
+                                          materialDesign:HintAssist.Hint="Статус заказа"
+                                          Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                          VerticalAlignment="Bottom"
+                                          DisplayMemberPath="Value" SelectedValuePath="Key"
+                                          SelectionChanged="HistoryFilterComboBox_SelectionChanged"/>
+
+                                <ComboBox x:Name="HistoryTypeFilterComboBox" Grid.Column="2"
+                                          materialDesign:HintAssist.Hint="Тип заказа"
+                                          Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                          VerticalAlignment="Bottom"
+                                          DisplayMemberPath="Value" SelectedValuePath="Key"
+                                          SelectionChanged="HistoryFilterComboBox_SelectionChanged"/>
+                            </Grid>
+                            <Grid Margin="0,5,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" MinWidth="200"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*" MinWidth="200"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <DatePicker x:Name="HistoryStartDatePicker" Grid.Column="0"
+                                            materialDesign:HintAssist.Hint="Начало периода"
+                                            Style="{StaticResource MaterialDesignFloatingHintDatePicker}"
+                                            VerticalAlignment="Bottom"
+                                            SelectedDateChanged="HistoryDatePicker_SelectedDateChanged"/>
+
+                                <Grid Grid.Column="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <DatePicker x:Name="HistoryEndDatePicker" Grid.Column="0"
+                                                materialDesign:HintAssist.Hint="Конец периода"
+                                                Style="{StaticResource MaterialDesignFloatingHintDatePicker}"
+                                                VerticalAlignment="Bottom"
+                                                SelectedDateChanged="HistoryDatePicker_SelectedDateChanged"/>
+
+                                    <CheckBox x:Name="HistoryShowAllTimeCheckBox" Grid.Column="1"
+                                              Content="Все время"
+                                              Margin="10,0,0,2" VerticalAlignment="Bottom"
+                                              Checked="HistoryShowAllTimeCheckBox_Changed" Unchecked="HistoryShowAllTimeCheckBox_Changed"/>
+                                </Grid>
+
+                                <Button x:Name="HistoryResetFiltersButton" Grid.Column="3"
+                                         Content="{materialDesign:PackIcon Kind=FilterRemoveOutline}"
+                                         ToolTip="Сбросить фильтры (статус, тип, дата)"
+                                         Style="{StaticResource MaterialDesignToolButton}"
+                                         Margin="10,0,0,0"
+                                         VerticalAlignment="Bottom"
+                                         Click="HistoryResetFiltersButton_Click"/>
+                            </Grid>
+                            <Grid Margin="0,5,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox x:Name="HistoryOrderSearchTextBox" Grid.Column="0"
+                                         materialDesign:HintAssist.Hint="Поиск по всем видимым полям..."
+                                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         VerticalAlignment="Bottom" Margin="0,0,10,0"
+                                         TextChanged="HistoryOrderSearchTextBox_TextChanged"/>
+
+                                <Button x:Name="HistoryResetSearchButton" Grid.Column="1"
+                                         Content="{materialDesign:PackIcon Kind=CloseCircleOutline}"
+                                         ToolTip="Сбросить текстовый поиск"
+                                         Style="{StaticResource MaterialDesignToolButton}"
+                                         Margin="5,0,0,0"
+                                         VerticalAlignment="Bottom"
+                                         Click="HistoryResetSearchButton_Click"/>
+                            </Grid>
+                        </StackPanel>
                     </Border>
-                    <TextBlock x:Name="OrdersStatusText" Text="Загрузка данных..." HorizontalAlignment="Center" Margin="20" Visibility="Collapsed"/>
-                    <DataGrid x:Name="OrdersDataGrid"
+                    <TextBlock x:Name="HistoryOrdersStatusText" Text="Загрузка данных..." HorizontalAlignment="Center" Margin="20" Visibility="Collapsed"/>
+                    <DataGrid x:Name="HistoryOrdersDataGrid"
                                AutoGenerateColumns="False"
                                CanUserAddRows="False"
                                IsReadOnly="True"
-                               Margin="10"
+                               Margin="10 0 10 10"
                                materialDesign:DataGridAssist.CellPadding="13 8 8 8"
                                materialDesign:DataGridAssist.ColumnHeaderPadding="8"
                                materialDesign:ShadowAssist.ShadowDepth="Depth1"
                                AlternationCount="2"
                                RowStyle="{StaticResource HighlightCompletedRowStyle}"
-                               MaxHeight="380"
+                               MaxHeight="345"
                                EnableRowVirtualization="True"
                                EnableColumnVirtualization="True"
                                ScrollViewer.CanContentScroll="True"
                                ScrollViewer.VerticalScrollBarVisibility="Auto"
                                ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Тип" SortMemberPath="НазваниеТипа" CanUserSort="True" MinWidth="35" Width="Auto">
+                            <DataGridTemplateColumn Header="Тип" SortMemberPath="НазваниеТипа" CanUserSort="True" Width="Auto" MinWidth="40">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <materialDesign:PackIcon Style="{StaticResource OrderTypeIconStyle}"/>
+                                        <materialDesign:PackIcon Style="{StaticResource OrderTypeIconStyle}" Margin="5,0"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <materialDesign:DataGridTextColumn Header="№" Binding="{Binding НомерЗаказа}" Width="Auto" MinWidth="10" FontSize="11"/>
-                            <materialDesign:DataGridTextColumn Header="Клиент" Binding="{Binding ИмяКлиента}" Width="Auto" MinWidth="100" FontSize="11"/>
-                            <materialDesign:DataGridTextColumn Header="Статус" Binding="{Binding НазваниеСтатуса}" Width="Auto" MinWidth="50" FontSize="11"/>
-                            <materialDesign:DataGridTextColumn Header="Адрес доставки" Binding="{Binding АдресДоставки}" Width="Auto" MinWidth="90" FontSize="11"/>
-                            <materialDesign:DataGridTextColumn Header="Сумма" Binding="{Binding ИтоговаяСумма, StringFormat='{}{0:N2} ₽'}" Width="Auto" MinWidth="80" FontSize="11"/>
-                            <materialDesign:DataGridTextColumn Header="Создан" Binding="{Binding ВремяСоздания, StringFormat='dd.MM HH:mm'}" Width="Auto" MinWidth="100" FontSize="11"/>
+                            <materialDesign:DataGridTextColumn Header="№" Binding="{Binding НомерЗаказа}" Width="Auto" MinWidth="25"/>
+                            <materialDesign:DataGridTextColumn Header="Создан" Binding="{Binding ВремяСоздания, StringFormat='dd.MM HH:mm'}" Width="Auto" MinWidth="90"/>
+                            <materialDesign:DataGridTextColumn Header="Клиент" Binding="{Binding ИмяКлиента}" Width="*" MinWidth="100"/>
+                            <materialDesign:DataGridTextColumn Header="Статус" Binding="{Binding НазваниеСтатуса}" Width="Auto" MinWidth="120"/>
+                            <materialDesign:DataGridTextColumn Header="Тип" Binding="{Binding НазваниеТипа}" Width="Auto" MinWidth="100"/>
+                            <materialDesign:DataGridTextColumn Header="Сумма" Binding="{Binding ИтоговаяСумма, StringFormat='{}{0:N2} ₽'}" Width="Auto" MinWidth="90">
+                                <materialDesign:DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource MaterialDesignDataGridTextColumnStyle}">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Margin" Value="0,0,8,0"/>
+                                    </Style>
+                                </materialDesign:DataGridTextColumn.ElementStyle>
+                                <materialDesign:DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="8,8,18,8"/>
+                                    </Style>
+                                </materialDesign:DataGridTextColumn.HeaderStyle>
+                            </materialDesign:DataGridTextColumn>
+
                             <DataGridTemplateColumn Header="Действия" Width="Auto">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Content="Подробнее"
                                                  Style="{StaticResource MaterialDesignFlatButton}"
-                                                 Click="DetailsButton_Click"
+                                                 Click="HistoryOrderDetailsButton_Click"
                                                  Tag="{Binding Id}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

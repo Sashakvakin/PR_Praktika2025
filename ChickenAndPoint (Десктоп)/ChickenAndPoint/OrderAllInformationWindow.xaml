@@ -7,7 +7,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="Полная информация о заказе"
-        Height="Auto" Width="650" SizeToContent="Height" MaxHeight="750"
+        Height="Auto" Width="650" MaxHeight="670"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         AllowsTransparency="True" WindowStyle="None"
@@ -29,7 +29,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="3" CornerRadius="8" Background="{DynamicResource MaterialDesignPaper}" Margin="10">
+    <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="1" CornerRadius="8" Background="{DynamicResource MaterialDesignPaper}" Margin="10">
         <Border.Effect>
             <DropShadowEffect BlurRadius="10" ShadowDepth="3" Direction="270" Color="Black" Opacity="0.2"/>
         </Border.Effect>
@@ -101,11 +101,13 @@
                     <TextBlock x:Name="DeliveryAddressTextBlock" Style="{StaticResource ValueStyle}" Text="-"/>
                 </StackPanel>
             </Grid>
-            
+
             <Separator Grid.Row="4" Margin="0,10,0,10"/>
 
             <TextBlock x:Name="LoadingStatusText" Grid.Row="5" Text="Загрузка состава заказа..." HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Foreground="{DynamicResource MaterialDesignBodyLight}" Visibility="Visible"/>
-            <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Auto" MaxHeight="300">
+            <ScrollViewer Grid.Row="5"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl x:Name="OrderItemsList" Grid.IsSharedSizeScope="True">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type local:OrderDisplayItemViewModel}">
@@ -128,13 +130,21 @@
             </ScrollViewer>
 
             <Separator Grid.Row="6" Margin="0,10,0,5"/>
-            
+
             <Grid Grid.Row="7" Margin="0,0,4,0">
                 <TextBlock Text="ИТОГО:" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <TextBlock x:Name="TotalSumTextBlock" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Text="- ₽"/>
             </Grid>
 
             <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                <Button x:Name="CancelOrderButton" Content="Отменить заказ"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="{DynamicResource MaterialDesignErrorBrush}"
+                        Foreground="red"
+                        BorderBrush="{DynamicResource MaterialDesignErrorBrush}"
+                        Margin="0,0,355,0"
+                        Click="CancelOrderButton_Click" Width="170"/>
+
                 <Button x:Name="CloseButton" Content="Закрыть" Style="{StaticResource MaterialDesignFlatButton}" Click="CloseButton_Click" IsCancel="True"/>
             </StackPanel>
 

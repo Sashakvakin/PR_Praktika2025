@@ -145,7 +145,7 @@
 
     </Window.Resources>
 
-    <Grid>
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="210"/>
                 <ColumnDefinition Width="*"/>
@@ -182,23 +182,17 @@
                             </StackPanel>
                         </Button>
 
-                        <Border Height="2" Margin="10,0,10,0" Background="White" Opacity="0.7" CornerRadius="5" SnapsToDevicePixels="True"/>
+                    <Border Height="2" Margin="10,5,10,5" Background="White" Opacity="0.7" CornerRadius="5" SnapsToDevicePixels="True"/>
 
-                        <Button x:Name="OrderTypesButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="ТипыЗаказов" Margin="0 0 0 0">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FormatListBulletedType" Style="{StaticResource AdminMenuIconStyle}"/>
-                                <TextBlock Text="Типы заказов" Style="{StaticResource AdminMenuTextStyle}"/>
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="OrderStatusesButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="СтатусыЗаказов" Margin="0 -5 0 0">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ProgressCheck" Style="{StaticResource AdminMenuIconStyle}"/>
-                                <TextBlock Text="Статусы заказов" Style="{StaticResource AdminMenuTextStyle}"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+                    <Button x:Name="CategoriesButton" Style="{StaticResource AdminMenuButtonStyle}" Click="MenuButton_Click" Tag="Категории" Margin="0 -5 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="FolderMultipleOutline" Style="{StaticResource AdminMenuIconStyle}"/>
+                            <TextBlock Text="Категории блюд" Style="{StaticResource AdminMenuTextStyle}"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
 
-                    <Button x:Name="LogoutButton" Style="{StaticResource AdminMenuButtonStyle}" Click="LogoutButton_Click" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Margin="8,15,8,15">
+                <Button x:Name="LogoutButton" Style="{StaticResource AdminMenuButtonStyle}" Click="LogoutButton_Click" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Margin="8,15,8,15">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="LogoutVariant" Style="{StaticResource AdminMenuIconStyle}"/>
                             <TextBlock Text="Выход" Style="{StaticResource AdminMenuTextStyle}"/>
@@ -579,15 +573,52 @@
                     </DataGrid>
                 </StackPanel>
             </Grid>
+            <Grid x:Name="CategoriesPanel" Visibility="Collapsed" Margin="15">
+                <StackPanel>
+                    <TextBlock Text="Управление категориями блюд" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="10,5,10,15"/>
 
+                    <TextBlock x:Name="CategoriesLoadingStatus" Text="Загрузка..." HorizontalAlignment="Center" Margin="0 50 0 0" Visibility="Collapsed" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" Foreground="{DynamicResource MaterialDesignBodyLight}"/>
 
-            <Grid x:Name="OrderTypesPanel" Visibility="Collapsed" Margin="20">
-                    <TextBlock Text="Раздел: Типы заказов" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
+                    <materialDesign:Card Padding="0" Margin="10,0,10,10" UniformCornerRadius="8">
+                        <DataGrid x:Name="CategoriesDataGrid" MaxHeight="480" SelectionChanged="CategoriesDataGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header=" Иконка" Width="Auto">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding СсылкаНаИконку, Converter={StaticResource ImageUrlConverter}, TargetNullValue={x:Null}}"
+                                                   Width="32" Height="32" Margin="5"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <Image.Style>
+                                                    <Style TargetType="Image">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="Source" Value="{x:Null}">
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                                <Image.ToolTip>
+                                                    <TextBlock Text="{Binding СсылкаНаИконку}"/>
+                                                </Image.ToolTip>
+                                            </Image>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <materialDesign:DataGridTextColumn Header=" Название категории" Binding="{Binding НазваниеКатегории}" Width="auto" MinWidth="90"/>
+                                <materialDesign:DataGridTextColumn Header=" URL иконки" Binding="{Binding СсылкаНаИконку}" Width="*" MinWidth="200"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </materialDesign:Card>
 
-                <Grid x:Name="OrderStatusesPanel" Visibility="Collapsed" Margin="20">
-                    <TextBlock Text="Раздел: Статусы заказов" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="10,10,0,0">
+                        <Button x:Name="AddCategoryButton" Content="Добавить новую" Style="{StaticResource MaterialDesignRaisedButton}" Width="180" Click="AddCategory_Click"/>
+                        <Button x:Name="EditCategoryButton" Content="Изменить выбранную" Style="{StaticResource MaterialDesignRaisedButton}" Margin="10,0,0,0" Width="200" IsEnabled="False" Click="EditCategory_Click"/>
+                        <Button x:Name="DeleteCategoryButton" Content="Удалить выбранную"
+                             Style="{StaticResource MaterialDesignRaisedButton}"
+                             Background="IndianRed" BorderBrush="IndianRed" Foreground="White"
+                             Margin="10,0,0,0" Width="200" IsEnabled="False" Click="DeleteCategory_Click"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
+        </Grid>
         </Grid>
     </Window>
