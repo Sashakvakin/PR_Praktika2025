@@ -10,9 +10,14 @@
         mc:Ignorable="d"
         Title="Добавление Нового Блюда" Height="Auto" Width="550" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize" Background="{DynamicResource MaterialDesignPaper}"
+        ResizeMode="NoResize"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
+
+    <Window.Background>
+        <ImageBrush ImageSource="background.png" Stretch="UniformToFill"/>
+    </Window.Background>
+
     <Window.Resources>
         <converters:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
     </Window.Resources>

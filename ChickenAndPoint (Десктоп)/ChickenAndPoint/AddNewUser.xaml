@@ -23,7 +23,7 @@
     </Window.Resources>
 
     <Border BorderBrush="{StaticResource OrangeAccentBrush}"
-            BorderThickness="2"
+            BorderThickness="3"
             CornerRadius="8"
             Background="{DynamicResource MaterialDesignPaper}">
         <Border.Effect>

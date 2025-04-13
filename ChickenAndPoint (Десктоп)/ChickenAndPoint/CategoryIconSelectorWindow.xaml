@@ -8,11 +8,15 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="Выбор Иконки Категории" Height="600" Width="800"
+        Title="Выбор Иконки Категории" Height="450" Width="680"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
+
+    <Window.Background>
+        <ImageBrush ImageSource="background.png" Stretch="UniformToFill"/>
+    </Window.Background>
+
     <Window.Resources>
         <converters:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
 
@@ -44,7 +48,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type sys:String}">
-                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1" CornerRadius="4" Margin="8">
+                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="3" CornerRadius="4" Margin="8">
                                 <StackPanel>
                                     <Border Width="64" Height="64" CornerRadius="3" Margin="5">
                                         <Border.Background>

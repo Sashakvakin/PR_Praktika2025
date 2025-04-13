@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using ChickenAndPoint.Admin;
+using Postgrest.Exceptions;
 
 namespace ChickenAndPoint
 {
@@ -21,6 +22,7 @@ namespace ChickenAndPoint
 
         public Блюда UpdatedDishData { get; private set; }
         public bool CategoriesMayHaveChanged { get; private set; }
+        public bool WasDeleted { get; private set; }
 
         public EditFoodWindow(DishAdminViewModel dishVm)
         {
@@ -28,6 +30,7 @@ namespace ChickenAndPoint
             _dishViewModel = dishVm ?? throw new ArgumentNullException(nameof(dishVm));
             UpdatedDishData = null;
             CategoriesMayHaveChanged = false;
+            WasDeleted = false;
             Loaded += EditFoodWindow_Loaded;
         }
 
@@ -216,8 +219,10 @@ namespace ChickenAndPoint
 
             SaveButton.IsEnabled = false;
             CancelButton.IsEnabled = false;
+            DeleteButton.IsEnabled = false;
             this.Cursor = Cursors.Wait;
             UpdatedDishData = null;
+            WasDeleted = false;
 
             try
             {
@@ -269,6 +274,7 @@ namespace ChickenAndPoint
                 {
                     SaveButton.IsEnabled = true;
                     CancelButton.IsEnabled = true;
+                    DeleteButton.IsEnabled = true;
                     this.Cursor = Cursors.Arrow;
                 }
             }
@@ -277,6 +283,7 @@ namespace ChickenAndPoint
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             UpdatedDishData = null;
+            WasDeleted = false;
             this.DialogResult = false;
             this.Close();
         }
@@ -308,6 +315,71 @@ namespace ChickenAndPoint
                 if (newlyAddedCategory != null)
                 {
                     CategoryComboBox.SelectedItem = newlyAddedCategory;
+                }
+            }
+        }
+
+        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult confirmResult = MessageBox.Show(
+                $"Вы уверены, что хотите удалить блюдо '{_dishViewModel.НазваниеБлюда}'?\n\nЭто действие необратимо.",
+                "Подтверждение удаления блюда",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirmResult != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            SaveButton.IsEnabled = false;
+            CancelButton.IsEnabled = false;
+            DeleteButton.IsEnabled = false;
+            this.Cursor = Cursors.Wait;
+            WasDeleted = false;
+
+            try
+            {
+                if (App.SupabaseClient == null)
+                {
+                    MessageBox.Show("Клиент Supabase не инициализирован.", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                await App.SupabaseClient
+                    .From<Блюда>()
+                    .Where(b => b.Id == _dishViewModel.Id)
+                    .Delete();
+
+                WasDeleted = true;
+                MessageBox.Show($"Блюдо '{_dishViewModel.НазваниеБлюда}' успешно удалено.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                this.DialogResult = true;
+                this.Close();
+
+            }
+            catch (PostgrestException pgEx)
+            {
+                if (pgEx.Message.Contains("violates foreign key constraint"))
+                {
+                    MessageBox.Show($"Невозможно удалить блюдо '{_dishViewModel.НазваниеБлюда}', так как оно используется в других записях (например, в заказах).", "Ошибка удаления (БД)", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    MessageBox.Show($"Не удалось удалить блюдо (ошибка БД): {pgEx.Message}", "Ошибка Supabase", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Произошла ошибка при удалении блюда: {ex.Message}", "Критическая ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                if (this.IsVisible && this.DialogResult != true)
+                {
+                    SaveButton.IsEnabled = true;
+                    CancelButton.IsEnabled = true;
+                    DeleteButton.IsEnabled = true;
+                    this.Cursor = Cursors.Arrow;
                 }
             }
         }

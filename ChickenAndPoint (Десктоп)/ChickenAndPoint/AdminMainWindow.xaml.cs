@@ -832,7 +832,6 @@ namespace ChickenAndPoint.Admin
         {
             if (!(sender is Button button && button.CommandParameter is DishAdminViewModel selectedDishVm))
             {
-                MessageBox.Show("Не удалось получить данные блюда для редактирования.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -842,6 +841,17 @@ namespace ChickenAndPoint.Admin
             var previouslySelectedCategoryIdInFilter = DishCategoryFilterComboBox.SelectedValue;
 
             bool? result = editWindow.ShowDialog();
+
+            if (editWindow.WasDeleted)
+            {
+                bool removed = _allLoadedDishes.Remove(selectedDishVm);
+                if (removed)
+                {
+                    ApplyDishFilter();
+                }
+                return;
+            }
+
             bool categoriesChangedDuringEdit = editWindow.CategoriesMayHaveChanged;
             Блюда updatedDishData = editWindow.UpdatedDishData;
 
@@ -863,7 +873,6 @@ namespace ChickenAndPoint.Admin
 
             if (result == true && updatedDishData != null)
             {
-
                 var viewModelToUpdate = _allLoadedDishes.FirstOrDefault(vm => vm.Id == updatedDishData.Id);
 
                 if (viewModelToUpdate != null)
@@ -880,23 +889,16 @@ namespace ChickenAndPoint.Admin
                     {
                         newCategoryName = catName;
                     }
-                    else
-                    {
-                    }
                     viewModelToUpdate.НазваниеКатегории = newCategoryName;
 
                     _ = viewModelToUpdate.LoadImageAsync();
 
                     ApplyDishFilter();
                 }
-                else
-                {
-                }
             }
             else if (result == true && updatedDishData == null)
             {
             }
-
         }
 
         private async void AddDishButton_Click(object sender, RoutedEventArgs e)

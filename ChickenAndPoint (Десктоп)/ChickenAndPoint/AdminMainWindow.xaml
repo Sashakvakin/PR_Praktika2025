@@ -265,6 +265,7 @@
 
             <Grid x:Name="DishesPanel" Visibility="Collapsed" Margin="15">
                 <Grid>
+                    
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>

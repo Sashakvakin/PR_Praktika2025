@@ -8,11 +8,14 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Выбор Изображения" Height="600" Width="800"
+        Title="Выбор Изображения" Height="550" Width="780"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource MaterialDesignPaper}"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         FontFamily="{materialDesign:MaterialDesignFont}" Icon="/logo3.png">
+
+    <Window.Background>
+        <ImageBrush ImageSource="background.png" Stretch="UniformToFill"/>
+    </Window.Background>
     <Window.Resources>
         <converters:ImageUrlToBitmapConverter x:Key="ImageUrlConverter"/>
         <Style TargetType="Button" x:Key="SelectImageButtonStyle" BasedOn="{StaticResource MaterialDesignFlatButton}">
@@ -45,9 +48,9 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type sys:String}">
-                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1" CornerRadius="4" Margin="8">
+                            <Border BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="3" CornerRadius="4" Margin="8">
                                 <StackPanel>
-                                    <Border Width="120" Height="120" CornerRadius="3" Margin="5">
+                                    <Border Width="105" Height="130" CornerRadius="3" Margin="5">
                                         <Border.Background>
                                             <ImageBrush ImageSource="{Binding Converter={StaticResource ImageUrlConverter}, Mode=OneTime}" Stretch="UniformToFill"/>
                                         </Border.Background>
