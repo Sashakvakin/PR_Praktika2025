@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ChickenAndPointMobile.LoginPage"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundImageSource="background.png">
+
+    <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand" Padding="30">
+
+        <Image Source="logo2.png" HeightRequest="200" Aspect="AspectFit" Margin="0,0,0,10"/>
+
+        <Label Text="Курочка и точка"
+               FontSize="Large"
+               FontAttributes="Bold"
+               HorizontalTextAlignment="Center"
+               TextColor="OrangeRed"
+               Margin="0,0,0,5"/>
+
+        <Label Text="Авторизация"
+               FontSize="Medium"
+               HorizontalTextAlignment="Center"
+               TextColor="Gray"
+               Margin="0,0,0,30"/>
+
+        <Frame CornerRadius="10" Padding="20" BackgroundColor="White" HasShadow="True">
+            <StackLayout>
+                <Label Text="Email"
+                       TextColor="Gray"
+                       FontSize="Small"
+                       Margin="0,0,0,0"/>
+                <Entry x:Name="EmailEntry"
+                       Keyboard="Email"
+                       ReturnType="Next"
+                       Completed="EmailEntry_Completed"
+                       Margin="0,-5,0,0"
+                       TextColor="Black"/>
+                <BoxView HeightRequest="1" BackgroundColor="Gray" Margin="4,-16,0,10"/>
+
+
+                <Label Text="Пароль"
+                       TextColor="Gray"
+                       FontSize="Small"
+                       Margin="0,0,0,0"/>
+                <Entry x:Name="PasswordEntry"
+                       IsPassword="True"
+                       ReturnType="Done"
+                       Completed="PasswordEntry_Completed"
+                       Margin="0,-5,0,0"
+                       TextColor="Black"/>
+                <BoxView HeightRequest="1" BackgroundColor="Gray" Margin="4,-16,0,20"/>
+
+                <Button x:Name="LoginButton"
+                        Text="ВОЙТИ"
+                        BackgroundColor="OrangeRed"
+                        TextColor="White"
+                        CornerRadius="5"
+                        HeightRequest="50"
+                        FontAttributes="Bold"
+                        Clicked="LoginButton_Clicked"/>
+
+                <ActivityIndicator x:Name="ActivityIndicator"
+                                   IsRunning="False"
+                                   IsVisible="False"
+                                   Color="OrangeRed"
+                                   Margin="0,10,0,0"/>
+            </StackLayout>
+        </Frame>
+    </StackLayout>
+</ContentPage>

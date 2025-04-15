@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:local="clr-namespace:ChickenAndPointMobile"
+            x:Class="ChickenAndPointMobile.ClientMainWindow"
+            xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
+            android:TabbedPage.ToolbarPlacement="Bottom"
+            android:TabbedPage.BarItemColor="Gray"
+            android:TabbedPage.BarSelectedItemColor="OrangeRed"
+            BarBackgroundColor="WhiteSmoke">
+
+    <local:MenuPage Title="Меню" IconImageSource="icon_menu.png" />
+
+    <local:RestaurantsPage Title="Рестораны" IconImageSource="icon_map.png" />
+
+    <local:CartPage Title="Корзина" IconImageSource="icon_cart.png" />
+
+    <local:ProfilePage Title="Профиль" IconImageSource="profile.png" />
+
+</TabbedPage>

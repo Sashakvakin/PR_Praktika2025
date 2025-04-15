@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ChickenAndPointMobile.ViewModels"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             x:Class="ChickenAndPointMobile.MenuPage"
+             Title="Меню"
+             BackgroundImageSource="background.png">
+
+    <ContentPage.BindingContext>
+        <vm:MenuPageViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowSpacing="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ListView ItemsSource="{Binding GroupedMenu}"
+                  IsGroupingEnabled="True"
+                  GroupDisplayBinding="{Binding CategoryName}"
+                  HasUnevenRows="True"
+                  SelectionMode="None"
+                  CachingStrategy="RetainElement"
+                  SeparatorVisibility="None"
+                  BackgroundColor="#F0F0F0"
+            Margin="0"
+                  Grid.Row="0">
+
+            <ListView.GroupHeaderTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Padding="15,15,15,10">
+                            <Label Text="{Binding CategoryName}"
+                                    FontSize="Large"
+                                    FontAttributes="Bold"
+                                    TextColor="OrangeRed"/>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.GroupHeaderTemplate>
+
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="vm:DishViewModel">
+                    <ViewCell>
+                        <Frame Margin="10,5" Padding="0" CornerRadius="10" HasShadow="True" IsClippedToBounds="True" BackgroundColor="White">
+                            <Grid ColumnSpacing="0">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="DishItem_Tapped" CommandParameter="{Binding .}"/>
+                                </Grid.GestureRecognizers>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ffimageloading:CachedImage Grid.Column="0"
+                                    Source="{Binding ImageSourceToShow}"
+                                    Aspect="AspectFill"
+                                    LoadingPlaceholder="placeholder_dish.png"
+                                    ErrorPlaceholder="error_dish.png"
+                                    WidthRequest="110"
+                                    HeightRequest="110"
+                                    VerticalOptions="FillAndExpand"/>
+
+                                    <StackLayout Grid.Column="1" Padding="15,10" Spacing="5" VerticalOptions="Center">
+                                        <Label Text="{Binding НазваниеБлюда}"
+                                            FontSize="Medium" FontAttributes="Bold"
+                                            TextColor="Black"/>
+                                        <Label Text="{Binding Описание}"
+                                            FontSize="Small" TextColor="Gray"
+                                            MaxLines="2" LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Цена, StringFormat='{0:N2} ₽'}"
+                                            FontSize="Medium" FontAttributes="Bold"
+                                            TextColor="OrangeRed"
+                                            Margin="0,8,0,0"/>
+                                </StackLayout>
+                            </Grid>
+                        </Frame>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <StackLayout Grid.Row="0" Grid.RowSpan="2"
+                     IsVisible="{Binding IsBusy}"
+                     VerticalOptions="Center" HorizontalOptions="Center">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="OrangeRed"/>
+            <Label Text="{Binding LoadingStatus}" TextColor="Gray" HorizontalTextAlignment="Center"/>
+        </StackLayout>
+    </Grid>
+</ContentPage>
