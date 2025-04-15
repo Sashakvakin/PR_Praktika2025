@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\IIDom\\Desktop\\ChickenAndPointMobile\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{65B6F29D-A9E7-47C7-A03D-EAE115ACA4B9}|ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile.csproj|c:\\users\\iidom\\desktop\\chickenandpointmobile\\chickenandpointmobile\\chickenandpointmobile\\viewmodels\\menupageviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65B6F29D-A9E7-47C7-A03D-EAE115ACA4B9}|ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile.csproj|solutionrelative:chickenandpointmobile\\chickenandpointmobile\\viewmodels\\menupageviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{65B6F29D-A9E7-47C7-A03D-EAE115ACA4B9}|ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile.csproj|c:\\users\\iidom\\desktop\\chickenandpointmobile\\chickenandpointmobile\\chickenandpointmobile\\menupage.xaml||{2974C621-7033-421A-B08A-11D27B021D1B}",
       "RelativeMoniker": "D:0:0:{65B6F29D-A9E7-47C7-A03D-EAE115ACA4B9}|ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile.csproj|solutionrelative:chickenandpointmobile\\chickenandpointmobile\\menupage.xaml||{2974C621-7033-421A-B08A-11D27B021D1B}"
     },
@@ -23,6 +27,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "MenuPageViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile\\ViewModels\\MenuPageViewModel.cs",
+              "RelativeDocumentMoniker": "ChickenAndPointMobile\\ChickenAndPointMobile\\ViewModels\\MenuPageViewModel.cs",
+              "ToolTip": "C:\\Users\\IIDom\\Desktop\\ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile\\ViewModels\\MenuPageViewModel.cs",
+              "RelativeToolTip": "ChickenAndPointMobile\\ChickenAndPointMobile\\ViewModels\\MenuPageViewModel.cs",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAkwFIAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-15T21:21:55.895Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "MenuPage.xaml",
               "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile\\MenuPage.xaml",
               "RelativeDocumentMoniker": "ChickenAndPointMobile\\ChickenAndPointMobile\\MenuPage.xaml",
@@ -30,12 +47,12 @@
               "RelativeToolTip": "ChickenAndPointMobile\\ChickenAndPointMobile\\MenuPage.xaml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-04-15T06:17:09.265Z",
+              "WhenOpened": "2025-04-15T21:17:53.21Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MenuPage.xaml.cs",
               "DocumentMoniker": "C:\\Users\\IIDom\\Desktop\\ChickenAndPointMobile\\ChickenAndPointMobile\\ChickenAndPointMobile\\MenuPage.xaml.cs",
               "RelativeDocumentMoniker": "ChickenAndPointMobile\\ChickenAndPointMobile\\MenuPage.xaml.cs",
@@ -43,7 +60,7 @@
               "RelativeToolTip": "ChickenAndPointMobile\\ChickenAndPointMobile\\MenuPage.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-15T06:17:09.856Z",
+              "WhenOpened": "2025-04-15T21:17:53.969Z",
               "EditorCaption": ""
             }
           ]

@@ -9,12 +9,28 @@
             android:TabbedPage.BarSelectedItemColor="OrangeRed"
             BarBackgroundColor="WhiteSmoke">
 
-    <local:MenuPage Title="Меню" IconImageSource="icon_menu.png" />
+    <NavigationPage Title="Меню" IconImageSource="icon_menu.png">
+        <x:Arguments>
+            <local:MenuPage Title="Меню"/>
+        </x:Arguments>
+    </NavigationPage>
 
-    <local:RestaurantsPage Title="Рестораны" IconImageSource="icon_map.png" />
+    <NavigationPage Title="Рестораны" IconImageSource="icon_map.png">
+        <x:Arguments>
+            <local:RestaurantsPage Title="Рестораны"/>
+        </x:Arguments>
+    </NavigationPage>
 
-    <local:CartPage Title="Корзина" IconImageSource="icon_cart.png" />
+    <NavigationPage Title="Корзина" IconImageSource="icon_cart.png">
+        <x:Arguments>
+            <local:CartPage Title="Корзина"/>
+        </x:Arguments>
+    </NavigationPage>
 
-    <local:ProfilePage Title="Профиль" IconImageSource="profile.png" />
+    <NavigationPage Title="Профиль" IconImageSource="profile.png">
+        <x:Arguments>
+            <local:ProfilePage Title="Профиль"/>
+        </x:Arguments>
+    </NavigationPage>
 
 </TabbedPage>

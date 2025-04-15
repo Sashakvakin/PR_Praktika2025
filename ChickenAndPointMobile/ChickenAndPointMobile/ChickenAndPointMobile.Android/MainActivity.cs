@@ -1,5 +1,4 @@
-﻿// MainActivity.cs
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
@@ -20,9 +19,7 @@ namespace ChickenAndPointMobile.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
 
-            // *** ИНИЦИАЛИЗАЦИЯ КАРТ ***
             Xamarin.FormsMaps.Init(this, savedInstanceState);
-            // **************************
 
             var config = new Configuration()
             {

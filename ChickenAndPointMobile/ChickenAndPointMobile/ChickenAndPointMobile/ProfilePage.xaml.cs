@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using ChickenAndPointMobile.ViewModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -9,45 +8,30 @@ namespace ChickenAndPointMobile
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ProfilePage : ContentPage
     {
+        ProfilePageViewModel vm;
+
         public ProfilePage()
         {
             InitializeComponent();
+            vm = new ProfilePageViewModel();
+            BindingContext = vm;
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
-            LoadUserProfileData();
+            vm.LoadUserData();
+            await vm.LoadOrderHistoryAsync();
         }
 
-        protected override void OnDisappearing()
+        private async void OrderDetails_Clicked(object sender, EventArgs e)
         {
-            base.OnDisappearing();
-        }
-
-        private void LoadUserProfileData()
-        {
-            var userProfile = App.LoggedInUserProfile;
-            var currentUser = App.SupabaseClient.Auth.CurrentUser;
-
-            if (userProfile != null)
+            if (sender is Button button && button.CommandParameter is OrderHistoryViewModel selectedOrder)
             {
-                NameLabel.Text = userProfile.ПолноеИмя ?? "Не указано";
-            }
-            else
-            {
-                NameLabel.Text = "Не удалось загрузить";
-            }
-
-            if (currentUser != null)
-            {
-                EmailLabel.Text = currentUser.Email ?? "Не указан";
-            }
-            else
-            {
-                EmailLabel.Text = "Не удалось загрузить";
+                await Navigation.PushAsync(new OrderDetailsWindow(selectedOrder.Id));
             }
         }
+
         private async void LogoutButton_Clicked(object sender, EventArgs e)
         {
             bool confirm = await DisplayAlert("Выход", "Вы уверены, что хотите выйти?", "Да", "Нет");

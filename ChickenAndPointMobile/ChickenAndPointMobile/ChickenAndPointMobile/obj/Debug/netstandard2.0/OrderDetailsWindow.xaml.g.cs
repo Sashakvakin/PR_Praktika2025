@@ -8,17 +8,17 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Xamarin.Forms.Xaml.XamlResourceIdAttribute("ChickenAndPointMobile.ProfilePage.xaml", "ProfilePage.xaml", typeof(global::ChickenAndPointMobile.ProfilePage))]
+[assembly: global::Xamarin.Forms.Xaml.XamlResourceIdAttribute("ChickenAndPointMobile.OrderDetailsWindow.xaml", "OrderDetailsWindow.xaml", typeof(global::ChickenAndPointMobile.OrderDetailsWindow))]
 
 namespace ChickenAndPointMobile {
     
     
-    [global::Xamarin.Forms.Xaml.XamlFilePathAttribute("ProfilePage.xaml")]
-    public partial class ProfilePage : global::Xamarin.Forms.ContentPage {
+    [global::Xamarin.Forms.Xaml.XamlFilePathAttribute("OrderDetailsWindow.xaml")]
+    public partial class OrderDetailsWindow : global::Xamarin.Forms.ContentPage {
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Forms.Build.Tasks.XamlG", "2.0.0.0")]
         private void InitializeComponent() {
-            global::Xamarin.Forms.Xaml.Extensions.LoadFromXaml(this, typeof(ProfilePage));
+            global::Xamarin.Forms.Xaml.Extensions.LoadFromXaml(this, typeof(OrderDetailsWindow));
         }
     }
 }

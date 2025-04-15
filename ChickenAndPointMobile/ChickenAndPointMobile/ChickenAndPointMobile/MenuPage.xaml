@@ -11,7 +11,7 @@
         <vm:MenuPageViewModel />
     </ContentPage.BindingContext>
 
-    <Grid RowSpacing="0">
+    <Grid RowSpacing="0" BackgroundColor="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -24,18 +24,18 @@
                   SelectionMode="None"
                   CachingStrategy="RetainElement"
                   SeparatorVisibility="None"
-                  BackgroundColor="#F0F0F0"
-            Margin="0"
+                  BackgroundColor="Transparent"
+                  Margin="0"
                   Grid.Row="0">
 
             <ListView.GroupHeaderTemplate>
                 <DataTemplate>
                     <ViewCell>
-                        <StackLayout Padding="15,15,15,10">
+                        <StackLayout BackgroundColor="#AAFFFFFF" Padding="15,12">
                             <Label Text="{Binding CategoryName}"
-                                    FontSize="Large"
+                                    FontSize="Title"
                                     FontAttributes="Bold"
-                                    TextColor="OrangeRed"/>
+                                    TextColor="#333333"/>
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>
@@ -45,11 +45,11 @@
                 <DataTemplate x:DataType="vm:DishViewModel">
                     <ViewCell>
                         <Frame Margin="10,5" Padding="0" CornerRadius="10" HasShadow="True" IsClippedToBounds="True" BackgroundColor="White">
-                            <Grid ColumnSpacing="0">
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="DishItem_Tapped" CommandParameter="{Binding .}"/>
-                                </Grid.GestureRecognizers>
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="DishItem_Tapped" CommandParameter="{Binding .}"/>
+                            </Frame.GestureRecognizers>
 
+                            <Grid ColumnSpacing="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -64,14 +64,14 @@
                                     HeightRequest="110"
                                     VerticalOptions="FillAndExpand"/>
 
-                                    <StackLayout Grid.Column="1" Padding="15,10" Spacing="5" VerticalOptions="Center">
-                                        <Label Text="{Binding НазваниеБлюда}"
+                                <StackLayout Grid.Column="1" Padding="15,10" Spacing="5" VerticalOptions="Center">
+                                    <Label Text="{Binding НазваниеБлюда}"
                                             FontSize="Medium" FontAttributes="Bold"
                                             TextColor="Black"/>
-                                        <Label Text="{Binding Описание}"
+                                    <Label Text="{Binding Описание}"
                                             FontSize="Small" TextColor="Gray"
                                             MaxLines="2" LineBreakMode="TailTruncation"/>
-                                        <Label Text="{Binding Цена, StringFormat='{0:N2} ₽'}"
+                                    <Label Text="{Binding Цена, StringFormat='{0:N2} ₽'}"
                                             FontSize="Medium" FontAttributes="Bold"
                                             TextColor="OrangeRed"
                                             Margin="0,8,0,0"/>

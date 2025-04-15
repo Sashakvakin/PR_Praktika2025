@@ -81,7 +81,7 @@ namespace ChickenAndPointMobile.ViewModels
                 {
                     var dishesInCategory = allAvailableDishes
                                            .Where(d => d.IdКатегории == category.Id)
-                                           .OrderBy(d => d.НазваниеБлюда)
+                                           .OrderBy(d => d.Цена)
                                            .Select(dish => new DishViewModel(dish))
                                            .ToList();
 

@@ -20,3 +20,4 @@ C:\Users\IIDom\Desktop\ChickenAndPointMobile\ChickenAndPointMobile\ChickenAndPoi
 C:\Users\IIDom\Desktop\ChickenAndPointMobile\ChickenAndPointMobile\ChickenAndPointMobile\obj\Debug\netstandard2.0\RestaurantsPage.xaml.g.cs
 C:\Users\IIDom\Desktop\ChickenAndPointMobile\ChickenAndPointMobile\ChickenAndPointMobile\obj\Debug\netstandard2.0\ProfilePage.xaml.g.cs
 C:\Users\IIDom\Desktop\ChickenAndPointMobile\ChickenAndPointMobile\ChickenAndPointMobile\obj\Debug\netstandard2.0\DishDetailPage.xaml.g.cs
+C:\Users\IIDom\Desktop\ChickenAndPointMobile\ChickenAndPointMobile\ChickenAndPointMobile\obj\Debug\netstandard2.0\OrderDetailsWindow.xaml.g.cs
