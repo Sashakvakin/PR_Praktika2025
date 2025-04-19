@@ -1,0 +1,85 @@
+create table public.Блюда (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  id_категории uuid not null,
+  название_блюда character varying(150) not null,
+  описание text null,
+  цена numeric(10, 2) not null,
+  ссылка_на_изображение character varying(2048) null,
+  доступно boolean not null default true,
+  constraint Блюда_pkey primary key (id),
+  constraint Блюда_id_категории_fkey foreign KEY ("id_категории") references "Категории" (id) on delete RESTRICT,
+  constraint Блюда_цена_check check (("цена" >= (0)::numeric))
+) TABLESPACE pg_default;
+
+create table public.Заказы (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  id_клиента uuid not null,
+  id_статуса uuid not null,
+  id_типа uuid not null,
+  адрес_доставки text null,
+  время_создания timestamp with time zone not null default now(),
+  время_обновления timestamp with time zone not null default now(),
+  итоговая_сумма numeric(10, 2) null,
+  номер_заказа character varying(50) null,
+  constraint Заказы_pkey primary key (id),
+  constraint Заказы_id_клиента_fkey foreign KEY ("id_клиента") references "Пользователи" (id) on delete RESTRICT,
+  constraint Заказы_id_статуса_fkey foreign KEY ("id_статуса") references "СтатусыЗаказов" (id),
+  constraint Заказы_id_типа_fkey foreign KEY ("id_типа") references "ТипыЗаказов" (id),
+  constraint Заказы_итоговая_сумма_check check (("итоговая_сумма" >= (0)::numeric))
+) TABLESPACE pg_default;
+
+create trigger "обновление_заказа_установить_врем" BEFORE
+update on "Заказы" for EACH row
+execute FUNCTION "установить_время_обновления" ();
+
+create table public.Категории (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  название_категории character varying(100) not null,
+  описание text null,
+  constraint Категории_pkey primary key (id),
+  constraint Категории_название_категории_key unique ("название_категории")
+) TABLESPACE pg_default;
+
+create table public.Пользователи (
+  id uuid not null,
+  id_роли uuid not null,
+  полное_имя character varying(255) null,
+  номер_телефона character varying(20) null,
+  constraint Пользователи_pkey primary key (id),
+  constraint Пользователи_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE,
+  constraint Пользователи_id_роли_fkey foreign KEY ("id_роли") references "Роли" (id)
+) TABLESPACE pg_default;
+
+create table public.Роли (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  название_роли character varying(50) not null,
+  constraint Роли_pkey primary key (id),
+  constraint Роли_название_роли_key unique ("название_роли")
+) TABLESPACE pg_default;
+
+create table public.СоставЗаказа (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  id_заказа uuid not null,
+  id_блюда uuid not null,
+  количество integer not null,
+  цена_на_момент_заказа numeric(10, 2) not null,
+  constraint СоставЗаказа_pkey primary key (id),
+  constraint СоставЗаказа_id_блюда_fkey foreign KEY ("id_блюда") references "Блюда" (id) on delete RESTRICT,
+  constraint СоставЗаказа_id_заказа_fkey foreign KEY ("id_заказа") references "Заказы" (id) on delete CASCADE,
+  constraint СоставЗаказа_количество_check check (("количество" > 0)),
+  constraint СоставЗаказа_цена_на_момент_за_check check (("цена_на_момент_заказа" >= (0)::numeric))
+) TABLESPACE pg_default;
+
+create table public.СтатусыЗаказов (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  название_статуса character varying(50) not null,
+  constraint СтатусыЗаказов_pkey primary key (id),
+  constraint СтатусыЗаказов_название_статус_key unique ("название_статуса")
+) TABLESPACE pg_default;
+
+create table public.ТипыЗаказов (
+  id uuid not null default extensions.uuid_generate_v4 (),
+  название_типа character varying(50) not null,
+  constraint ТипыЗаказов_pkey primary key (id),
+  constraint ТипыЗаказов_название_типа_key unique ("название_типа")
+) TABLESPACE pg_default;
